@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - MES Traceability</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <img alt="Bootstrap Image Preview" src="~/Images/sch.png" />
+                <nav class="navbar navbar-default" role="navigation">
+                    <div class="navbar-header">
+
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                            <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+                        </button> <a class="navbar-brand" href="#">MES Traceability</a>
+                    </div>
+
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li>
+                                @Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)
+                            </li>
+                            <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Summary<strong class="caret"></strong></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        @Html.ActionLink("Product Process", "Index", "ProductProcesses", new { area = "" }, null)
+                                    </li>
+                                    <li>
+                                        @Html.ActionLink("Work Orders", "Index", "Workorders", new { area = "" }, null)
+                                    </li>
+                                </ul>
+                             <li class="dropdown">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Setting<strong class="caret"></strong></a>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                @Html.ActionLink("Products", "Index", "Products", new { area = "" }, null)
+                                            </li>
+                                            <li>
+                                                @Html.ActionLink("Product Sequence", "Index", "ProductSequences", new { area = "" }, null)
+                                            </li>
+                                            <li>
+                                                @Html.ActionLink("Product Sequence Item", "Index", "ProductSequenceItems", new { area = "" }, null)
+                                            </li>
+                                            <li>
+                                                @Html.ActionLink("Production Line", "Index", "ProductionLines", new { area = "" }, null)
+                                            </li>
+                                            <li>
+                                                @Html.ActionLink("Machine Family", "Index", "MachineFamilies", new { area = "" }, null)
+                                            </li>
+                                            <li>
+                                                @Html.ActionLink("Machine", "Index", "Machines", new { area = "" }, null)
+                                            </li>
+                                            <li>
+                                                @Html.ActionLink("Department", "Index", "Departments", new { area = "" }, null)
+                                            </li>
+                                            <li>
+                                                @Html.ActionLink("User", "Index", "ApplicationUsers", new { area = "" }, null)
+                                            </li>
+
+                                        </ul>
+                                    </li>
+                         </ul>
+
+                        @Html.Partial("_LoginPartial")
+                    </div>
+
+                </nav>
+            </div>
+        </div>
+
+        <div>
+            @RenderBody()
+            <hr />
+            <footer>
+                <p>&copy; @DateTime.Now.Year - EDF System Integration</p>
+            </footer>
+        </div>
+    </div>
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,66 @@
+﻿@model MES.Models.ProductProcess
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Product Process</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Machine.SerialNumber)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Machine.SerialNumber)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Product.Reference)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Product.Reference)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Workorder.Number)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Workorder.Number)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FullName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FullName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DateTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DateTime)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Result)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Result)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

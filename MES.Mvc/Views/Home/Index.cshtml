@@ -1,0 +1,145 @@
+﻿@using MES.Models
+@model IEnumerable<MES.Models.Machine>
+@{
+    ViewBag.Title = "Home Page";
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h5 class="panel-title">
+                    Machine List
+                </h5>
+            </div>
+            <div class="panel-body">
+              
+                <table class="table table-striped table-hover table-responsive">
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.SerialNumber)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.ProductionLine.Name)
+                        </th>
+
+                        <th>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.MachineStatus)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.TraceabilityStatus)
+                        </th>
+                      
+                        
+                        <th>
+                            Current Product
+                        </th>
+                        <th>
+                            Date & Time
+                        </th>
+                    </tr>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SerialNumber)
+                            </td>
+                           
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ProductionLine.Name)
+                            </td>
+
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                               
+                                    <span class="label label-danger" id="ms_@item.Id">
+                                       
+                                            @Html.DisplayFor(modelItem => item.MachineStatus)
+                                        </span>
+                            </td>
+                           
+                            <td>
+                                <span class="label label-success" id="ts_@item.Id">
+                                    @Html.DisplayFor(modelItem => item.TraceabilityStatus)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="label label-success" id="p_@item.Id">
+                                    ...
+                                </span>
+                            </td>
+                            <td>
+                                <span  id="dt_@item.Id">
+                                    ...
+                                </span>
+                            </td>
+                        </tr>
+                    }
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/bundles/notify")
+    
+    <script type="text/javascript">
+        $(document).ready(function () {
+            function showNotification(message,type) {
+                $.notify({
+                    title: '<strong>Heads up!</strong>',
+                    message: message
+                },
+                              {
+                                  type: type
+                              });
+            }
+            setTimeout(lastStatus, 5000);
+
+            function lastStatus() {
+
+                $.ajax({
+                    type: "POST",
+                    url: "./home/LastStatus",
+                    data: '{id: "3" }',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.Success) {
+                            for (var i = 0, len = response.productProcess.length; i < len; i++) {
+                                var idrow = response.productProcess[i][0].MachineId;
+                                var milli = response.productProcess[i][0].DateTime.replace(/\/Date\((-?\d+)\)\//, '$1');
+                                var d = new Date(parseInt(milli));
+
+                                $("#p_" + idrow)
+                                    .text(response.productProcess[i][0].FullName);
+                                $("#ts_" + idrow)
+                                   .text(response.productProcess[i][0].Machine.TraceabilityStatus);
+                                $("#ms_" + idrow)
+                                   .text(response.productProcess[i][0].Machine.MachineStatus);
+                                $("#dt_" + idrow)
+                                    .text(d);
+                            }
+                        } else {
+                            showNotification(response.responseText,"danger");
+                        }
+                    },
+                    failure: function(response) {
+                        alert(response.responseText);
+                    },
+                    error: function(response) {
+                        alert(response.responseText);
+                    }
+                });
+                setTimeout(lastStatus, 5000);
+            }
+        });
+    </script>
+
+}
