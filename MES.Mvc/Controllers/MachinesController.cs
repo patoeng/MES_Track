@@ -16,9 +16,12 @@ namespace MES.Mvc.Controllers
        
 
         // GET: Machines
-        public ActionResult Index()
+        public ActionResult Index(string searchString)
         {
-            var machines = db.Machines.All().Include(m => m.MachineFamily).Include(m => m.ProductionLine);
+            var machines = searchString == "*"
+                ? db.Machines.All().Include(m => m.MachineFamily).Include(m => m.ProductionLine)
+                : db.Machines.All().Include(m => m.MachineFamily).Include(m => m.ProductionLine).Where(m=>m.Name.Contains(searchString));
+            ViewBag.SearchString = searchString;
             return View(machines.ToList());
         }
 

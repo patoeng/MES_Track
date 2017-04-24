@@ -18,9 +18,13 @@ namespace MES.Mvc
         
 
       
-        public ActionResult Index()
+        public ActionResult Index(string searchString)
         {
-            return View(db.Departments.All().ToList());
+            var department = searchString == "*"
+                ? db.Departments.All()
+                : db.Departments.All().Where(m => m.Name.Contains(searchString));
+            ViewBag.SearchString = searchString;
+            return View(department.ToList());
         }
 
         // GET: Departments/Details/5

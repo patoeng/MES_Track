@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Configuration;
 using System.Data.Entity;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using MES.Common.Helper;
-using MES.Common;
 using MES.Models;
 using MES.Data;
 using MES.Data.Migrations;
@@ -18,125 +19,255 @@ namespace MES.Logics
     {
         private Machine _machine;
         private IMesData _data;
+        private readonly ISetting _setting;
+        private string _koneksi;
 
-        public MesMachine(int machineId)
+        [DispId(12)]
+        public event MyEventHandlerWithInfo MesExceptionEvent;
+        public MesMachine()
         {
-            _data = new MesData();
-            if (!GetMachineById(machineId))
-            {
-                _machine = new Machine();
-            }
+            _setting = new Settings();
         }
-        public MesMachine(string machineSerialNumber)
+      
+        public void InitializeMachine()
         {
-            _data = new MesData();
-            if (!GetMachineBySerialNumber(machineSerialNumber))
+            string machineSerialNumber = _setting.MachineSerialNumber();
+            InitializeMachine(machineSerialNumber);
+        }
+        public void InitializeMachine(string machineSerialNumber)
+        {
+            if (_setting.GetEnableTraceability())
             {
-                _machine = new Machine();
+                try
+                {
+
+
+                    _koneksi = _setting.GetDatabaseConnectionString();
+
+
+                    _data = new MesData(_koneksi);
+                    if (!GetMachineBySerialNumber(machineSerialNumber))
+                    {
+                        _machine = new Machine();
+                        MesExceptionEvent?.Invoke("Machine Serial Number Not Set Or Not Registered to Server");
+                    }
+                }
+                catch (Exception exception)
+                {
+                    MesExceptionEvent?.Invoke(exception.StackTrace + "\r\n " + exception.Message + "\r\n" +
+                                              exception.InnerException);
+                }
             }
         }
         private bool GetMachineById(int machineId)
         {
-            _machine = _data.Machines.GetById(machineId);
+            try
+            {
+                _machine = _data.Machines.GetById(machineId);
+            }
+            catch (Exception exception)
+            {
+                MesExceptionEvent?.Invoke(exception.Message);
+            }
             return _machine != null;
         }
 
         private bool GetMachineBySerialNumber(string serialNumber)
         {
-            _machine = _data.Machines.All().Where(m => m.SerialNumber == serialNumber).Take(1).FirstOrDefault();
+            try
+            {
+                _machine = _data.Machines.All().Where(m => m.SerialNumber == serialNumber).Take(1).FirstOrDefault();
+            }
+            catch (Exception exception)
+            {
+                MesExceptionEvent?.Invoke(exception.Message);
+            }
             return _machine != null;
         }
         private bool NewProductProcess(Machine machine,Product product, Workorder workorder, string fullName, ProcessResult result)
         {
-            ProductProcess process = new ProductProcess
+            if (IsTraceabilityEnabled())
             {
-                ProductId = product.Id,
-                WorkorderId = workorder.Id,
-                MachineId = machine.Id,
-                FullName = fullName,
-                DateTime = DateTime.Now,
-                Result =result
-            };
-            _data.ProductProcesses.Add(process);
-            _data.ProductProcesses.SaveChanges();
-            return true;
+                try
+                {
+                    ProductProcess process = new ProductProcess
+                    {
+                        ProductId = product.Id,
+                        WorkorderId = workorder.Id,
+                        MachineId = machine.Id,
+                        FullName = fullName,
+                        DateTime = DateTime.Now,
+                        Result = result
+                    };
+                    _data.ProductProcesses.Add(process);
+                    _data.ProductProcesses.SaveChanges();
+                    return true;
+                }
+                catch (Exception exception)
+                {
+                    MesExceptionEvent?.Invoke(exception.Message);
+                }               
+            }
+            else
+            {
+                return true;
+            }
+            return false;
         }
         public bool StartProductProcess(string  workorderNumber, string fullName)
         {
-            ProductReference pr= new ProductReference(fullName);
-            Product product =
-                _data.Products.All().FirstOrDefault(m => m.Reference == pr.Parsed.ReferencePart);
-            Workorder workorder =
-                _data.Workorders.All().FirstOrDefault(m => m.Number == workorderNumber);
-            if (product != null && workorder != null)
-            {  
-                return NewProductProcess(_machine, product, workorder, fullName, ProcessResult.Ok);
+            if (IsTraceabilityEnabled())
+            {
+                try
+                {
+                    ProductReference pr = new ProductReference(fullName);
+                    Product product =
+                        _data.Products.All().FirstOrDefault(m => m.Reference == pr.Parsed.ReferencePart);
+                    Workorder workorder =
+                        _data.Workorders.All().FirstOrDefault(m => m.Number == workorderNumber);
+
+                    var checkForAlreadyProcessed =
+                        _data.ProductProcesses.All().FirstOrDefault(m => m.FullName == fullName);
+
+                    if (product != null && workorder != null && checkForAlreadyProcessed==null)
+                    {
+                        return NewProductProcess(_machine, product, workorder, fullName, ProcessResult.Generated);
+                    }
+                    if (product == null)
+                    {
+                        MesExceptionEvent?.Invoke("Product Reference Not Found");
+                    }
+                    if (workorder == null)
+                    {
+                        MesExceptionEvent?.Invoke("WorkOrder Number Not Found");
+                    }
+                    if (checkForAlreadyProcessed != null)
+                    {
+                        MesExceptionEvent?.Invoke("Product "+fullName+" has already been generated");
+                    }
+                }
+                catch (Exception exception)
+                {
+                    MesExceptionEvent?.Invoke(exception.Message);
+                }
+            }
+            else
+            {
+                return true;
             }
             return false;
         }
         public bool LoadProductToMachine(string productFullname)
         {
-            ProductReference pr = new ProductReference(productFullname);
-           
-            var lastPosition = _data.ProductProcesses.All().Include(m=>m.Product).Include(m=>m.Machine)
-                .Where(x => x.FullName== pr.FullName)
-                .OrderByDescending(x => x.DateTime)
-                .FirstOrDefault();
-            if (lastPosition != null && (lastPosition.Result==ProcessResult.Ok || lastPosition.Result == ProcessResult.Dismantled))
+            if (IsTraceabilityEnabled())
             {
-                var lastSequencetPosition = _data.ProductSequenceItems
-                    .All()
-                    .FirstOrDefault(m => m.MachineFamilyId == lastPosition.Machine.MachineFamilyId);
-
-                var next = _data.ProductSequenceItems.All()
-                    .Where(
-                        m =>
-                            m.ProductSequenceId == lastPosition.Product.SequenceId &&
-                            m.Level > lastSequencetPosition.Level)
-                            .OrderBy(m=>m.Level).FirstOrDefault();
-
-                if (next != null && next.MachineFamily.Id == _machine.MachineFamily.Id || lastPosition.Result == ProcessResult.Dismantled)
+                try
                 {
-                    var product =
-                        _data.Products.All()
-                            .FirstOrDefault(m => m.Reference == pr.Parsed.ReferencePart);
-                    if (product != null)
+                    ProductReference pr = new ProductReference(productFullname);
+
+                    var lastPosition = _data.ProductProcesses.All().Include(m => m.Product).Include(m => m.Machine)
+                        .Where(x => x.FullName == pr.FullName)
+                        .OrderByDescending(x => x.DateTime)
+                        .FirstOrDefault();
+                    if (lastPosition != null &&
+                        (lastPosition.Result == ProcessResult.Ok || lastPosition.Result == ProcessResult.Dismantled))
                     {
-                        return NewProductProcess(_machine, product, lastPosition.Workorder, pr.FullName,ProcessResult.InProcess);
+                        var lastSequencetPosition = _data.ProductSequenceItems
+                            .All()
+                            .FirstOrDefault(m => m.MachineFamilyId == lastPosition.Machine.MachineFamilyId);
+
+                        var next = _data.ProductSequenceItems.All()
+                            .Where(
+                                m =>
+                                    m.ProductSequenceId == lastPosition.Product.SequenceId &&
+                                    m.Level > lastSequencetPosition.Level)
+                            .OrderBy(m => m.Level).FirstOrDefault();
+
+                        if (next != null && next.MachineFamily.Id == _machine.MachineFamily.Id ||
+                            lastPosition.Result == ProcessResult.Dismantled)
+                        {
+                            var product =
+                                _data.Products.All()
+                                    .FirstOrDefault(m => m.Reference == pr.Parsed.ReferencePart);
+                            if (product != null)
+                            {
+                                return NewProductProcess(_machine, product, lastPosition.Workorder, pr.FullName,
+                                    ProcessResult.InProcess);
+                            }
+                            MesExceptionEvent?.Invoke("Product Reference "+pr.Parsed.ReferencePart+" is not found");
+                        }
                     }
                 }
+                catch (Exception exception)
+                {
+                    MesExceptionEvent?.Invoke(exception.Message);
+                }
+            }
+            else
+            {
+                return true;
             }
             return false; 
         }
 
         public bool DismantleProduct(string productFullName)
         {
-            ProductReference pr = new ProductReference(productFullName);
-
-            var lastPosition = _data.ProductProcesses.All().Include(m => m.Product).Include(m => m.Machine)
-                .Where(x => x.FullName == pr.FullName && x.Result==ProcessResult.NOk)
-                .OrderByDescending(x => x.DateTime)
-                .Take(1).FirstOrDefault();
-            if (lastPosition != null)
+            if (IsTraceabilityEnabled())
             {
-                
-                return UpdateProductStatus(pr.FullName, ProcessResult.Dismantled);
+                try
+                {
+                    ProductReference pr = new ProductReference(productFullName);
+
+                    var lastPosition = _data.ProductProcesses.All().Include(m => m.Product).Include(m => m.Machine)
+                        .Where(x => x.FullName == pr.FullName)
+                        .OrderByDescending(x => x.DateTime)
+                        .Take(1).FirstOrDefault();
+                    if (lastPosition != null)
+                    {
+                        return UpdateProductStatus(pr.FullName, ProcessResult.Dismantled, "");
+                    }
+                    MesExceptionEvent?.Invoke("Product process of " + productFullName + " is not found");
+                }
+                catch (Exception exception)
+                {
+                    MesExceptionEvent?.Invoke(exception.Message);
+                }
+            }
+            else
+            {
+                return true;
             }
             return false;
         }
-        private bool UpdateProductStatus(string productFullName, ProcessResult result)
+        private bool UpdateProductStatus(string productFullName, ProcessResult result, string remarks)
         {
-            ProductProcess process =
-                _data.ProductProcesses.All()
-                    .Where(m => m.FullName == productFullName && m.MachineId == _machine.Id)
-                    .Take(1)
-                    .FirstOrDefault();
-            if (process != null)
+            if (IsTraceabilityEnabled())
             {
-                process.DateTime = DateTime.Now;
-                process.Result = result;
-                _data.ProductProcesses.Add(process);
-                _data.ProductProcesses.SaveChanges();
+                try
+                {
+                    ProductProcess process =
+                        _data.ProductProcesses.All()
+                            .Where(m => m.FullName == productFullName && m.MachineId == _machine.Id)
+                            .Take(1)
+                            .FirstOrDefault();
+                    if (process != null)
+                    {
+                        process.DateTime = DateTime.Now;
+                        process.Result = result;
+                        process.Remarks = remarks;
+                        _data.ProductProcesses.Add(process);
+                        _data.ProductProcesses.SaveChanges();
+                        return true;
+                    }
+                    MesExceptionEvent?.Invoke("Product process of " + productFullName + " is not found");
+                }
+                catch (Exception exception)
+                {
+                    MesExceptionEvent?.Invoke(exception.Message);
+                }
+            }
+            else
+            {
                 return true;
             }
             return false;
@@ -144,28 +275,49 @@ namespace MES.Logics
 
         public bool UpdateProductStatusOk(string productFullName)
         {
-            return UpdateProductStatus(productFullName, ProcessResult.Ok);
+            return UpdateProductStatus(productFullName, ProcessResult.Ok,"");
         }
         public bool UpdateProductStatusNok(string productFullName)
         {
-            return UpdateProductStatus(productFullName, ProcessResult.NOk);
+            return UpdateProductStatus(productFullName, ProcessResult.NOk,"");
         }
-
+        public bool UpdateProductStatusOk(string productFullName,string remarks)
+        {
+            return UpdateProductStatus(productFullName, ProcessResult.Ok, remarks);
+        }
+        public bool UpdateProductStatusNok(string productFullName,string remarks)
+        {
+            return UpdateProductStatus(productFullName, ProcessResult.NOk, remarks);
+        }
         public bool NewWorkOrder(string workorderNumber, string reference, int target)
         {
-            Product product = _data.Products.All().FirstOrDefault(m => m.Reference == reference);
-            if (product != null)
+            if (IsTraceabilityEnabled())
             {
-                Workorder workorder = new Workorder
+                try
                 {
-                    Number = workorderNumber,
-                    ReferenceId = product.Id,
-                    Quantity = target,
-                    DateTime =  DateTime.Now,
-                    EntryThroughMachineId = _machine.Id
-                };
-                _data.Workorders.Add(workorder);
-                _data.Workorders.SaveChanges();
+                    Product product = _data.Products.All().FirstOrDefault(m => m.Reference == reference);
+                    if (product != null)
+                    {
+                        Workorder workorder = new Workorder
+                        {
+                            Number = workorderNumber,
+                            ReferenceId = product.Id,
+                            Quantity = target,
+                            DateTime = DateTime.Now,
+                            EntryThroughMachineId = _machine.Id
+                        };
+                        _data.Workorders.Add(workorder);
+                        _data.Workorders.SaveChanges();
+                        return true;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    MesExceptionEvent?.Invoke(exception.Message);
+                }
+            }
+            else
+            {
                 return true;
             }
             return false;
@@ -175,6 +327,21 @@ namespace MES.Logics
             Workorder workorder = _data.Workorders.All().FirstOrDefault(m => m.Number == workorderNumber);
             return  workorder!=null;
         }
+
+        public void EnableTraceability()
+        {
+           _setting.SetEnableTraceability(true);
+        }
+        public void DisableTraceability()
+        {
+            _setting.SetEnableTraceability(false);
+        }
+
+        public bool IsTraceabilityEnabled()
+        {
+            return _setting.GetEnableTraceability();
+        }
+    
     }
 
    

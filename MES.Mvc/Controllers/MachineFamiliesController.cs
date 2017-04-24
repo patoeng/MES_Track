@@ -16,9 +16,13 @@ namespace MES.Mvc.Controllers
     
 
        
-        public ActionResult Index()
+        public ActionResult Index(string searchString)
         {
-            return View(db.MachineFamilies.All().ToList());
+            var machineFamilies = searchString == "*"
+                ? db.MachineFamilies.All()
+                : db.MachineFamilies.All().Where(m => m.Name.Contains(searchString));
+            ViewBag.SearchString = searchString;
+            return View(machineFamilies.ToList());
         }
 
         // GET: MachineFamilies/Details/5

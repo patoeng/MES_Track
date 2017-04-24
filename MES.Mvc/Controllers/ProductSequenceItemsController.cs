@@ -18,9 +18,13 @@ namespace MES.Mvc.Controllers
         // GET: ProductSequenceItems
        
 
-        public ActionResult Index()
+        public ActionResult Index(string searchString)
         {
-            var productSequenceItems = db.ProductSequenceItems.All().Include(p => p.MachineFamily).Include(p => p.ProductSequence);
+
+            var productSequenceItems = searchString == "*"
+                ? db.ProductSequenceItems.All().Include(p => p.MachineFamily).Include(p => p.ProductSequence)
+                : db.ProductSequenceItems.All().Include(p => p.MachineFamily).Include(p => p.ProductSequence).Where(m=>m.MachineFamily.Name.Contains(searchString));
+            ViewBag.SearchString = searchString;
             return View(productSequenceItems.ToList());
         }
 

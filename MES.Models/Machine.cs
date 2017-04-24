@@ -12,7 +12,7 @@ namespace MES.Models
         public int Id { get; set; }
 
         [Required]
-        [DisplayName("MC Serial Number")]
+        [DisplayName("Machine Code")]
         public string SerialNumber { get; set; }
        
         [Required]

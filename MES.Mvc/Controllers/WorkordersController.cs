@@ -11,14 +11,20 @@ using MES.Models;
 
 namespace MES.Mvc.Controllers
 {
-    public class WorkordersController : Controller
+    public class WorkordersController : BaseController
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+     
 
         // GET: Workorders
-        public ActionResult Index()
+        public ActionResult Index(string searchString)
         {
-            var workorders = db.Workorders.Include(w => w.EntryThroughMachine).Include(w => w.Reference);
+            var workorders = searchString == "*"
+                ? db.Workorders.All().Include(w => w.EntryThroughMachine).Include(w => w.Reference)
+                : db.Workorders.All()
+                    .Include(w => w.EntryThroughMachine)
+                    .Include(w => w.Reference)
+                    .Where(m => m.Number.Contains(searchString));
+            ViewBag.SearchString = searchString;
             return View(workorders.ToList());
         }
 
@@ -29,7 +35,7 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Workorder workorder = db.Workorders.Find(id);
+            Workorder workorder = db.Workorders.GetById(id);
             if (workorder == null)
             {
                 return HttpNotFound();
@@ -40,8 +46,8 @@ namespace MES.Mvc.Controllers
         // GET: Workorders/Create
         public ActionResult Create()
         {
-            ViewBag.EntryThroughMachineId = new SelectList(db.Machines, "Id", "SerialNumber");
-            ViewBag.ReferenceId = new SelectList(db.Products, "Id", "Reference");
+            ViewBag.EntryThroughMachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber");
+            ViewBag.ReferenceId = new SelectList(db.Products.All(), "Id", "Reference");
             return View();
         }
 
@@ -59,8 +65,8 @@ namespace MES.Mvc.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.EntryThroughMachineId = new SelectList(db.Machines, "Id", "SerialNumber", workorder.EntryThroughMachineId);
-            ViewBag.ReferenceId = new SelectList(db.Products, "Id", "Reference", workorder.ReferenceId);
+            ViewBag.EntryThroughMachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber", workorder.EntryThroughMachineId);
+            ViewBag.ReferenceId = new SelectList(db.Products.All(), "Id", "Reference", workorder.ReferenceId);
             return View(workorder);
         }
 
@@ -71,13 +77,13 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Workorder workorder = db.Workorders.Find(id);
+            Workorder workorder = db.Workorders.GetById(id);
             if (workorder == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.EntryThroughMachineId = new SelectList(db.Machines, "Id", "SerialNumber", workorder.EntryThroughMachineId);
-            ViewBag.ReferenceId = new SelectList(db.Products, "Id", "Reference", workorder.ReferenceId);
+            ViewBag.EntryThroughMachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber", workorder.EntryThroughMachineId);
+            ViewBag.ReferenceId = new SelectList(db.Products.All(), "Id", "Reference", workorder.ReferenceId);
             return View(workorder);
         }
 
@@ -90,12 +96,12 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(workorder).State = EntityState.Modified;
+                db.Workorders.Add(workorder);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.EntryThroughMachineId = new SelectList(db.Machines, "Id", "SerialNumber", workorder.EntryThroughMachineId);
-            ViewBag.ReferenceId = new SelectList(db.Products, "Id", "Reference", workorder.ReferenceId);
+            ViewBag.EntryThroughMachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber", workorder.EntryThroughMachineId);
+            ViewBag.ReferenceId = new SelectList(db.Products.All(), "Id", "Reference", workorder.ReferenceId);
             return View(workorder);
         }
 
@@ -106,7 +112,7 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Workorder workorder = db.Workorders.Find(id);
+            Workorder workorder = db.Workorders.GetById(id);
             if (workorder == null)
             {
                 return HttpNotFound();
@@ -119,8 +125,8 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Workorder workorder = db.Workorders.Find(id);
-            db.Workorders.Remove(workorder);
+            Workorder workorder = db.Workorders.GetById(id);
+            db.Workorders.Delete(workorder);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
@@ -129,7 +135,7 @@ namespace MES.Mvc.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+            //    db.Dispose();
             }
             base.Dispose(disposing);
         }

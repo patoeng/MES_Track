@@ -15,9 +15,13 @@ namespace MES.Mvc.Controllers
     {
       
 
-        public ActionResult Index()
+        public ActionResult Index(string searchString)
         {
-            return View(db.ProductionLines.All().ToList());
+            var productionLines = searchString == "*"
+                ? db.ProductionLines.All()
+                : db.ProductionLines.All().Where(m => m.Name.Contains(searchString));
+            ViewBag.SearchString = searchString;
+            return View(productionLines.ToList());
         }
 
         // GET: ProductionLines/Details/5

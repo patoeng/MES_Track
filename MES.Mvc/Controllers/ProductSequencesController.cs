@@ -16,10 +16,13 @@ namespace MES.Mvc.Controllers
       
         
 
-        public ActionResult Index()
+        public ActionResult Index(string searchString)
         {
-           
-            return View(db.ProductSequences.All().ToList());
+            var productSequences = searchString == "*"
+                ? db.ProductSequences.All()
+                : db.ProductSequences.All().Where(m => m.Name.Contains(searchString));
+            ViewBag.SearchString = searchString;
+            return View(productSequences.ToList());
         }
 
         // GET: ProductSequences/Details/5

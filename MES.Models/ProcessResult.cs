@@ -2,7 +2,7 @@
 {
     public enum ProcessResult
     {
-        Unknown,
+        Generated,
         InProcess,
         Ok,
         NOk,

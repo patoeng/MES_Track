@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Core.Common.CommandTrees;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -16,9 +17,10 @@ namespace MES.Mvc.Controllers
 
        
 
-        public ActionResult Index()
+        public ActionResult Index(string searchString)
         {
-            var products = db.Products.All().Include(m => m.Sequence);
+            var products = searchString == "*" ? db.Products.All().Include(m => m.Sequence) : db.Products.All().Include(m => m.Sequence).Where(m=> m.Reference.Contains(searchString.ToUpper()));
+            ViewBag.SearchString = searchString;
             return View(products.ToList());
         }
 

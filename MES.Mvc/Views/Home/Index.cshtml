@@ -25,14 +25,7 @@
                         <th>
                             @Html.DisplayNameFor(model => model.Name)
                         </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.MachineStatus)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.TraceabilityStatus)
-                        </th>
-                      
-                        
+                     
                         <th>
                             Current Product
                         </th>
@@ -55,21 +48,9 @@
                             <td>
                                 @Html.DisplayFor(modelItem => item.Name)
                             </td>
+                          
                             <td>
-                               
-                                    <span class="label label-danger" id="ms_@item.Id">
-                                       
-                                            @Html.DisplayFor(modelItem => item.MachineStatus)
-                                        </span>
-                            </td>
-                           
-                            <td>
-                                <span class="label label-success" id="ts_@item.Id">
-                                    @Html.DisplayFor(modelItem => item.TraceabilityStatus)
-                                </span>
-                            </td>
-                            <td>
-                                <span class="label label-success" id="p_@item.Id">
+                                <span id="p_@item.Id">
                                     ...
                                 </span>
                             </td>
@@ -91,7 +72,7 @@
     
     <script type="text/javascript">
         $(document).ready(function () {
-            function showNotification(message,type) {
+            function showNotification(message, type) {
                 $.notify({
                     title: '<strong>Heads up!</strong>',
                     message: message
@@ -106,11 +87,11 @@
 
                 $.ajax({
                     type: "POST",
-                    url: "./home/LastStatus",
+                    url: "@Request.Url/home/LastStatus",
                     data: '{id: "3" }',
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    success: function(response) {
+                    success: function (response) {
                         if (response.Success) {
                             for (var i = 0, len = response.productProcess.length; i < len; i++) {
                                 var idrow = response.productProcess[i][0].MachineId;
@@ -124,16 +105,16 @@
                                 $("#ms_" + idrow)
                                    .text(response.productProcess[i][0].Machine.MachineStatus);
                                 $("#dt_" + idrow)
-                                    .text(d);
+                                    .text(d.toISOString());
                             }
                         } else {
-                            showNotification(response.responseText,"danger");
+                            showNotification(response.responseText, "danger");
                         }
                     },
-                    failure: function(response) {
+                    failure: function (response) {
                         alert(response.responseText);
                     },
-                    error: function(response) {
+                    error: function (response) {
                         alert(response.responseText);
                     }
                 });

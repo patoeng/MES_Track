@@ -19,5 +19,6 @@ namespace MES.Models
         public virtual Machine Machine { get; set; }
         public virtual Product Product { get; set; }
         public ProcessResult Result { get; set; }
+        public string Remarks { get; set; }
     }
 }

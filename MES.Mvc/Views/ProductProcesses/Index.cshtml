@@ -19,7 +19,7 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-2">
-                            @Html.Label("reference")
+                            @Html.Label("Reference")
                             @Html.TextBox("reference", ViewBag.reference as string, new { @class = "form-control" })
                         </div>
                         <div class="col-md-2">
@@ -32,18 +32,18 @@
                         </div>
                         <div class="col-md-3">
                             @Html.Label("From Date")
-                            @Html.TextBox("fromDate", ViewBag.fromDate as string, new { @class = "form-control form_datetime" })
+                            @Html.TextBox("fromDateTime", ViewBag.fromDateTime as string, new { @class = "form-control form_datetime" })
                         </div>
                         <div class="col-md-3">
                             @Html.Label("To Date")
-                            @Html.TextBox("toDate", ViewBag.toDate as string, new { @class = "form-control form_datetime" })
+                            @Html.TextBox("toDateTime", ViewBag.toDateTime as string, new { @class = "form-control form_datetime" })
                         </div>
 
                     </div>
                     <div class="row">
                         <div class="col-md-12">
                             <br />
-                            <span class="btn btn-success">Search</span>
+                            <input type="submit" value="Search" class="btn btn-success" />
                         </div>
                     </div>
                 </div>
