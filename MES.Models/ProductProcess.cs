@@ -20,5 +20,7 @@ namespace MES.Models
         public virtual Product Product { get; set; }
         public ProcessResult Result { get; set; }
         public string Remarks { get; set; }
+        public int? SequenceItemId { get; set; }
+        public virtual ProductSequenceItem SequenceItem { get; set; }
     }
 }

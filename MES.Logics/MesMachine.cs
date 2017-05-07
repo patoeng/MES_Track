@@ -341,7 +341,11 @@ namespace MES.Logics
         {
             return _setting.GetEnableTraceability();
         }
-    
+
+        public string CurrentConnectionString()
+        {
+            return _setting.GetDatabaseConnectionString();
+        }
     }
 
    

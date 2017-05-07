@@ -9,7 +9,7 @@
         <div class="panel panel-success">
             <div class="panel-heading">
                 <h5 class="panel-title">
-                    Product Sequence List
+                    Workorder List
                 </h5>
             </div>
             <div class="panel-body">
@@ -18,6 +18,14 @@
                         <p>
                             @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-success" })
                         </p>
+                        @using (Html.BeginForm("Index", "Workorders", FormMethod.Get, new { @class = "form-inline" }))
+                        {
+
+                            <p>
+                                Find by name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control " })
+                                <input type="submit" value="Search" class="btn btn-success  form-control" />
+                            </p>
+                        }
                         <table class="table table-hover table-striped">
                             <tr>
                                 <th>

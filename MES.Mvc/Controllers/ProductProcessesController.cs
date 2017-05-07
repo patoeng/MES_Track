@@ -22,15 +22,16 @@ namespace MES.Mvc.Controllers
             var ctoDateTime =  string.IsNullOrEmpty(fromDateTime) ? DateTime.Now.AddDays(1) : DateTime.Parse(toDateTime);
 
             var productProcesses =
-                db.ProductProcesses.All().Include(p => p.Machine).Include(p => p.Product).Include(p => p.Workorder)
-                    .Where(m=>
-                     (m.FullName.Contains(reference)|| reference=="") &&
-                     (m.Machine.SerialNumber.Contains(machineCode)||machineCode=="")&&
-                     (m.Workorder.Number.Contains(workorderNumber)|| workorderNumber=="")&&
-                     m.DateTime>= cfromDateTime &&
-                     m.DateTime <= ctoDateTime
-
+                db.ProductProcesses.All()
+                    .Include(p => p.Machine).Include(p => p.Product).Include(p => p.Workorder)
+                    .Where(m =>
+                        (m.FullName.Contains(reference) || reference == "") &&
+                        (m.Machine.SerialNumber.Contains(machineCode) || machineCode == "") &&
+                        (m.Workorder.Number.Contains(workorderNumber) || workorderNumber == "") &&
+                        m.DateTime >= cfromDateTime &&
+                        m.DateTime <= ctoDateTime
                     );
+           
             ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
             ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
             return View(productProcesses.ToList());
