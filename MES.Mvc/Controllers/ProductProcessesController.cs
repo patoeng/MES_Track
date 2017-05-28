@@ -1,40 +1,158 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using MES.Data;
 using MES.Models;
+using MES.Mvc.Excel;
+using MES.Mvc.Helpers;
 
 namespace MES.Mvc.Controllers
 {
     public class ProductProcessesController : BaseController
     {
-       
-
         // GET: ProductProcesses
-        public ActionResult Index(string reference,string machineCode, string workorderNumber, string fromDateTime, string toDateTime)
+        public ActionResult Index()
         {
-            var cfromDateTime =string.IsNullOrEmpty(fromDateTime) ? DateTime.Now: DateTime.Parse(fromDateTime);
-            var ctoDateTime =  string.IsNullOrEmpty(fromDateTime) ? DateTime.Now.AddDays(1) : DateTime.Parse(toDateTime);
-
-            var productProcesses =
-                db.ProductProcesses.All()
-                    .Include(p => p.Machine).Include(p => p.Product).Include(p => p.Workorder)
-                    .Where(m =>
-                        (m.FullName.Contains(reference) || reference == "") &&
-                        (m.Machine.SerialNumber.Contains(machineCode) || machineCode == "") &&
-                        (m.Workorder.Number.Contains(workorderNumber) || workorderNumber == "") &&
-                        m.DateTime >= cfromDateTime &&
-                        m.DateTime <= ctoDateTime
-                    );
-           
+            var cfromDateTime = DateTime.Now;
+            var ctoDateTime = DateTime.Now.AddDays(1);
             ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
             ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
-            return View(productProcesses.ToList());
+            var ddProcessResult = Enum.GetNames(typeof(ProcessResult))
+              .Select(x => x.ToString())
+              .ToList();
+            ddProcessResult.Add("All");
+            ViewBag.State = new SelectList(ddProcessResult);
+            ViewBag.LastStatus = new SelectList(new List<string> { "No", "Yes" });
+            return View();
+        }
+
+        [HttpPost]
+        [MultipleButton(Name = "action", Argument = "Search")]
+        public ActionResult Search(string reference,string machineCode, string workorderNumber, string fromDateTime, string toDateTime, string state, string lastStatus)
+        {
+            ProcessResult lastStateEnum;
+            Enum.TryParse(state, out lastStateEnum);
+            //
+            var cfromDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now : DateTime.Parse(fromDateTime);
+            var ctoDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now.AddDays(1) : DateTime.Parse(toDateTime);
+            ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
+            ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
+
+            var ddProcessResult = Enum.GetNames(typeof(ProcessResult))
+                .Select(x => x.ToString())
+                .ToList();
+            ddProcessResult.Add("All");
+            ViewBag.State = new SelectList(ddProcessResult);
+            ViewBag.LastStatus = new SelectList(new List<string> { "No", "Yes" });
+            if (lastStatus == "No")
+            {
+                var productProcesses =
+                    db.ProductProcesses.All()
+                        .Include(p => p.Machine).Include(p => p.Product).Include(p => p.Workorder)
+                        .Where(m =>
+                            (m.FullName.Contains(reference) || reference == "") &&
+                            (m.Machine.SerialNumber.Contains(machineCode) || machineCode == "") &&
+                            (m.Workorder.Number.Contains(workorderNumber) || workorderNumber == "") &&
+                            m.DateTime >= cfromDateTime &&
+                            m.DateTime <= ctoDateTime &&
+                            (m.Result == lastStateEnum || state.Contains("All"))
+                        ).OrderByDescending(m => m.DateTime).Take(500);
+                return View(productProcesses.OrderBy(m=>m.DateTime).ToList());
+            }
+            else
+            {
+                var productProcesses =
+                    db.ProductProcesses.All()
+                        .Where(m =>
+                            (m.FullName.Contains(reference) || reference == "") &&
+                            (m.Machine.SerialNumber.Contains(machineCode) || machineCode == "") &&
+                            (m.Workorder.Number.Contains(workorderNumber) || workorderNumber == "") &&
+                            m.DateTime >= cfromDateTime &&
+                            m.DateTime <= ctoDateTime &&
+                            (m.Result == lastStateEnum || state.Contains("All")))
+                        .OrderBy(m => m.DateTime);
+                var r = from p in productProcesses
+                        group p by p.FullName into g
+                        select new { ProductProcess = g.ToList() };
+
+
+                List<ProductProcess> pp = new List<ProductProcess>();
+                foreach (var kk in r.ToList())
+                {
+                    var ll = kk.ProductProcess.OrderByDescending(m => m.DateTime).FirstOrDefault();
+                    pp.Add(ll);
+                }
+               
+                return View(pp.OrderBy(m=>m.DateTime).Take(1000));
+            }
+           
+        }
+
+        [HttpPost]
+        [MultipleButton(Name = "action", Argument = "Excel")]
+        public ActionResult Excel(string reference, string machineCode, string workorderNumber, string fromDateTime,
+            string toDateTime, string state, string lastStatus)
+        {
+            ProcessResult lastStateEnum;
+            Enum.TryParse(state, out lastStateEnum);
+            //
+            var cfromDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now : DateTime.Parse(fromDateTime);
+            var ctoDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now.AddDays(1) : DateTime.Parse(toDateTime);
+            ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
+            ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
+
+            var ddProcessResult = Enum.GetNames(typeof(ProcessResult))
+                .Select(x => x.ToString())
+                .ToList();
+            ddProcessResult.Add("All");
+            ViewBag.State = new SelectList(ddProcessResult);
+            ViewBag.LastStatus = new SelectList(new List<string> {"No", "Yes"});
+            if (lastStatus == "No")
+            {
+                var productProcesses =
+                    db.ProductProcesses.All()
+                        .Include(p => p.Machine).Include(p => p.Product).Include(p => p.Workorder)
+                        .Where(m =>
+                            (m.FullName.Contains(reference) || reference == "") &&
+                            (m.Machine.SerialNumber.Contains(machineCode) || machineCode == "") &&
+                            (m.Workorder.Number.Contains(workorderNumber) || workorderNumber == "") &&
+                            m.DateTime >= cfromDateTime &&
+                            m.DateTime <= ctoDateTime &&
+                            (m.Result == lastStateEnum || state.Contains("All"))
+                        ).OrderByDescending(m => m.DateTime);
+                var j = productProcesses.ToList();
+                ViewBag.ExcelFile = SummaryReports.ProductProcessToExcelFile(j);
+                return View();
+            }
+            else
+            {
+                var productProcesses =
+                    db.ProductProcesses.All()
+                        .Where(m =>
+                            (m.FullName.Contains(reference) || reference == "") &&
+                            (m.Machine.SerialNumber.Contains(machineCode) || machineCode == "") &&
+                            (m.Workorder.Number.Contains(workorderNumber) || workorderNumber == "") &&
+                            m.DateTime >= cfromDateTime &&
+                            m.DateTime <= ctoDateTime &&
+                            (m.Result == lastStateEnum || state.Contains("All")))
+                            .OrderByDescending(m => m.DateTime);
+
+               var r = from p in productProcesses
+                                        group p by p.FullName into g
+                                        select new { ProductProcess = g.ToList() };
+
+
+               List<ProductProcess> pp = new List<ProductProcess>();
+                foreach (var kk in r.ToList())
+                {
+                    var ll = kk.ProductProcess.OrderByDescending(m => m.DateTime).FirstOrDefault();
+                    pp.Add(ll);
+                }
+                ViewBag.ExcelFile = SummaryReports.ProductProcessToExcelFile(pp.OrderBy(m => m.DateTime).ToList());
+                return View();
+            }
         }
 
         // GET: ProductProcesses/Details/5

@@ -49,10 +49,12 @@
                                 @Html.DisplayFor(modelItem => item.Name)
                             </td>
                           
-                            <td>
+                            <td> <b>
                                 <span id="p_@item.Id">
-                                    ...
-                                </span>
+                                   
+                                        ...
+                                   
+                                </span> </b>
                             </td>
                             <td>
                                 <span  id="dt_@item.Id">
@@ -105,7 +107,7 @@
                                 $("#ms_" + idrow)
                                    .text(response.productProcess[i][0].Machine.MachineStatus);
                                 $("#dt_" + idrow)
-                                    .text(d.toISOString());
+                                    .text(d.toString().split(" GMT")[0]);
                             }
                         } else {
                             showNotification(response.responseText, "danger");

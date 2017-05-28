@@ -170,7 +170,7 @@ namespace MES.Logics
                         .OrderByDescending(x => x.DateTime)
                         .FirstOrDefault();
                     if (lastPosition != null &&
-                        (lastPosition.Result == ProcessResult.Ok || lastPosition.Result == ProcessResult.Dismantled))
+                        (lastPosition.Result == ProcessResult.Pass || lastPosition.Result == ProcessResult.Dismantled))
                     {
                         var lastSequencetPosition = _data.ProductSequenceItems
                             .All()
@@ -275,19 +275,19 @@ namespace MES.Logics
 
         public bool UpdateProductStatusOk(string productFullName)
         {
-            return UpdateProductStatus(productFullName, ProcessResult.Ok,"");
+            return UpdateProductStatus(productFullName, ProcessResult.Pass,"");
         }
         public bool UpdateProductStatusNok(string productFullName)
         {
-            return UpdateProductStatus(productFullName, ProcessResult.NOk,"");
+            return UpdateProductStatus(productFullName, ProcessResult.Fail,"");
         }
         public bool UpdateProductStatusOk(string productFullName,string remarks)
         {
-            return UpdateProductStatus(productFullName, ProcessResult.Ok, remarks);
+            return UpdateProductStatus(productFullName, ProcessResult.Pass, remarks);
         }
         public bool UpdateProductStatusNok(string productFullName,string remarks)
         {
-            return UpdateProductStatus(productFullName, ProcessResult.NOk, remarks);
+            return UpdateProductStatus(productFullName, ProcessResult.Fail, remarks);
         }
         public bool NewWorkOrder(string workorderNumber, string reference, int target)
         {

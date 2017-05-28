@@ -4,8 +4,11 @@
     {
         Generated,
         InProcess,
-        Ok,
-        NOk,
-        Dismantled
+        Pass,
+        Fail,
+        Dismantled,
+        BackJumped,
+        Renamed,
+        FailWrongProcessAttempt,
     }
 }

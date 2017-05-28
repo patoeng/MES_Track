@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using MES.Data;
-using MES.Models;
 using MES.Mvc.Models;
 
 namespace MES.Mvc.Controllers
 {
     public class ApplicationUsersController : Controller
     {
-        Models.ApplicationDbContext db = new Models.ApplicationDbContext();
+        readonly ApplicationDbContext _db = new ApplicationDbContext();
       
        public ActionResult Index()
        {
-           var applicationUsers = db.Users;
+           var applicationUsers = _db.Users;
             return View(applicationUsers.ToList());
         }
 
@@ -29,7 +23,7 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ApplicationUser applicationUser = db.Users.Find(id);
+            ApplicationUser applicationUser = _db.Users.Find(id);
             if (applicationUser == null)
             {
                 return HttpNotFound();
@@ -53,8 +47,8 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Users.Add(applicationUser);
-                db.SaveChanges();
+                _db.Users.Add(applicationUser);
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
@@ -69,7 +63,7 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ApplicationUser applicationUser = db.Users.Find(id);
+            ApplicationUser applicationUser = _db.Users.Find(id);
             if (applicationUser == null)
             {
                 return HttpNotFound();
@@ -87,8 +81,8 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(applicationUser).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(applicationUser).State = EntityState.Modified;
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
            // ViewBag.DepartmentId = new SelectList(db.Departments.All(), "Id", "Name", applicationUser.DepartmentId);
@@ -102,7 +96,7 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ApplicationUser applicationUser = db.Users.Find(id);
+            ApplicationUser applicationUser = _db.Users.Find(id);
             if (applicationUser == null)
             {
                 return HttpNotFound();
@@ -115,9 +109,9 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
-            ApplicationUser applicationUser = db.Users.Find(id);
-            db.Users.Remove(applicationUser);
-            db.SaveChanges();
+            ApplicationUser applicationUser = _db.Users.Find(id);
+            _db.Users.Remove(applicationUser);
+            _db.SaveChanges();
             return RedirectToAction("Index");
         }
 

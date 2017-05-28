@@ -42,11 +42,11 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    @Html.LabelFor(model => model.Sequence, htmlAttributes: new { @class = "control-label col-md-2" })
+                                    @Html.LabelFor(model => model.SequenceId, htmlAttributes: new { @class = "control-label col-md-2" })
                                     <div class="col-md-10">
-                                        @Html.DropDownList("SequenceId", (IEnumerable<SelectListItem>)ViewBag.SequenceId, new { @class = "form-control" });
+                                        @Html.DropDownList("SequenceId",null, new { @class = "form-control" });
 
-                                        @Html.ValidationMessageFor(model => model.Sequence, "", new { @class = "text-danger" })
+                                        @Html.ValidationMessageFor(model => model.SequenceId, "", new { @class = "text-danger" })
                                     </div>
                                 </div>
                                 <div class="form-group">

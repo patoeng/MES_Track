@@ -8,6 +8,8 @@ using System.Web;
 using System.Web.Mvc;
 using MES.Data;
 using MES.Models;
+using MES.Mvc.Excel;
+using MES.Mvc.Helpers;
 
 namespace MES.Mvc.Controllers
 {
@@ -16,18 +18,52 @@ namespace MES.Mvc.Controllers
      
 
         // GET: Workorders
-        public ActionResult Index(string searchString)
+        public ActionResult Index()
         {
-            var workorders = searchString == "*"
-                ? db.Workorders.All().Include(w => w.EntryThroughMachine).Include(w => w.Reference)
-                : db.Workorders.All()
-                    .Include(w => w.EntryThroughMachine)
-                    .Include(w => w.Reference)
-                    .Where(m => m.Number.Contains(searchString));
-            ViewBag.SearchString = searchString;
-            return View(workorders.ToList());
+            var cfromDateTime = DateTime.Now;
+            var ctoDateTime = DateTime.Now.AddDays(1);
+            ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
+            ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
+            return View();
         }
 
+        [HttpPost]
+        [MultipleButton(Name = "action", Argument = "Search")]
+        public ActionResult Search(string workOrder,  string fromDateTime,
+            string toDateTime)
+        {
+            var cfromDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now : DateTime.Parse(fromDateTime);
+            var ctoDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now.AddDays(1) : DateTime.Parse(toDateTime);
+            ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
+            ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
+
+            var workOrders = db.Workorders.All().Where(
+                m => (m.Number.Contains(workOrder) || workOrder == "") &&
+                     m.DateTime >= cfromDateTime &&
+                     m.DateTime <= ctoDateTime
+            ).OrderByDescending(k => k.DateTime);
+            return View(workOrders.ToList());
+        }
+        [HttpPost]
+        [MultipleButton(Name = "action", Argument = "Excel")]
+        public ActionResult Excel(string workOrder, string fromDateTime,
+           string toDateTime)
+        {
+            var cfromDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now : DateTime.Parse(fromDateTime);
+            var ctoDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now.AddDays(1) : DateTime.Parse(toDateTime);
+            ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
+            ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
+
+            var workOrders = db.Workorders.All().Where(
+                m => (m.Number.Contains(workOrder) || workOrder == "") &&
+                     m.DateTime >= cfromDateTime &&
+                     m.DateTime <= ctoDateTime
+            ).OrderByDescending(k => k.DateTime);
+
+            var j = workOrders.ToList();
+            ViewBag.ExcelFile = SummaryReports.WorkOrderToExcelFile(j);
+            return View(j);
+        }
         // GET: Workorders/Details/5
         public ActionResult Details(int? id)
         {

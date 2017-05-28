@@ -15,6 +15,7 @@ namespace MES.Models
         public string Number { get; set; }
         [DisplayName("Reference")]
         public int ReferenceId { get; set; }
+        [DisplayName("Target Quantity")]
         public int? Quantity { get; set; }
         [DisplayName("Date")]
         public DateTime DateTime { get; set; }

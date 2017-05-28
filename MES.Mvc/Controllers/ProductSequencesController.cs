@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using MES.Data;
 using MES.Models;
 
 namespace MES.Mvc.Controllers
 {
     public class ProductSequencesController : BaseController
     {
-      
-        
-
         public ActionResult Index(string searchString)
         {
             var productSequences = searchString == "*"

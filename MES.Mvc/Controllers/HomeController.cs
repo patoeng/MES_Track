@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.Data.Entity;
-using System.Data.Entity.Core.Common.CommandTrees;
+
 using System.Linq;
-using System.Net;
-using System.Web;
-using System.Web.Helpers;
+
 using System.Web.Mvc;
-using MES.Data;
-using MES.Data.Migrations;
-using MES.Models;
-using Microsoft.Ajax.Utilities;
-using Newtonsoft.Json;
 
 namespace MES.Mvc.Controllers
 {
@@ -26,14 +18,14 @@ namespace MES.Mvc.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.Message = "Front Line 1,2,3 Traceability.";
 
             return View();
         }
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "sales@edfsystem.com.";
 
             return View();
         }
@@ -44,12 +36,7 @@ namespace MES.Mvc.Controllers
 
             var productProcess = db.ProductProcesses.All()
                 .GroupBy(m => m.MachineId)
-                .Select(g=>g.OrderByDescending(x=>x.DateTime).Take(1));
-                
-            
-           
-            
-           
+                .Select(g=>g.OrderByDescending(x=>x.DateTime).Take(1));  
             return Json(new { Success = true, productProcess});
         }
     }
