@@ -1,9 +1,8 @@
 ﻿
 using System.Data.Entity;
-
 using System.Linq;
-
 using System.Web.Mvc;
+using MES.Mvc.Helpers;
 
 namespace MES.Mvc.Controllers
 {
@@ -12,21 +11,22 @@ namespace MES.Mvc.Controllers
        
         public ActionResult Index()
         {
-            var machines = db.Machines.All().Include(m => m.MachineFamily).Include(m => m.ProductionLine);
+            var machines = Db.Machines.All().Include(m => m.MachineFamily).Include(m => m.ProductionLine);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(machines.ToList());
         }
 
         public ActionResult About()
         {
             ViewBag.Message = "Front Line 1,2,3 Traceability.";
-
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
         public ActionResult Contact()
         {
             ViewBag.Message = "sales@edfsystem.com.";
-
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -34,7 +34,7 @@ namespace MES.Mvc.Controllers
         public JsonResult LastStatus()
         {
 
-            var productProcess = db.ProductProcesses.All()
+            var productProcess = Db.ProductProcesses.All()
                 .GroupBy(m => m.MachineId)
                 .Select(g=>g.OrderByDescending(x=>x.DateTime).Take(1));  
             return Json(new { Success = true, productProcess});

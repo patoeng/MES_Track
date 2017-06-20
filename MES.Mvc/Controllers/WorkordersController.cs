@@ -24,6 +24,7 @@ namespace MES.Mvc.Controllers
             var ctoDateTime = DateTime.Now.AddDays(1);
             ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
             ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -37,11 +38,12 @@ namespace MES.Mvc.Controllers
             ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
             ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
 
-            var workOrders = db.Workorders.All().Where(
+            var workOrders = Db.Workorders.All().Where(
                 m => (m.Number.Contains(workOrder) || workOrder == "") &&
                      m.DateTime >= cfromDateTime &&
                      m.DateTime <= ctoDateTime
             ).OrderByDescending(k => k.DateTime);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(workOrders.ToList());
         }
         [HttpPost]
@@ -54,7 +56,7 @@ namespace MES.Mvc.Controllers
             ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
             ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
 
-            var workOrders = db.Workorders.All().Where(
+            var workOrders = Db.Workorders.All().Where(
                 m => (m.Number.Contains(workOrder) || workOrder == "") &&
                      m.DateTime >= cfromDateTime &&
                      m.DateTime <= ctoDateTime
@@ -62,6 +64,7 @@ namespace MES.Mvc.Controllers
 
             var j = workOrders.ToList();
             ViewBag.ExcelFile = SummaryReports.WorkOrderToExcelFile(j);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(j);
         }
         // GET: Workorders/Details/5
@@ -71,19 +74,21 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Workorder workorder = db.Workorders.GetById(id);
+            Workorder workorder = Db.Workorders.GetById(id);
             if (workorder == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(workorder);
         }
 
         // GET: Workorders/Create
         public ActionResult Create()
         {
-            ViewBag.EntryThroughMachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber");
-            ViewBag.ReferenceId = new SelectList(db.Products.All(), "Id", "Reference");
+            ViewBag.EntryThroughMachineId = new SelectList(Db.Machines.All(), "Id", "SerialNumber");
+            ViewBag.ReferenceId = new SelectList(Db.Products.All(), "Id", "Reference");
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -96,13 +101,14 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Workorders.Add(workorder);
-                db.SaveChanges();
+                Db.Workorders.Add(workorder);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.EntryThroughMachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber", workorder.EntryThroughMachineId);
-            ViewBag.ReferenceId = new SelectList(db.Products.All(), "Id", "Reference", workorder.ReferenceId);
+            ViewBag.EntryThroughMachineId = new SelectList(Db.Machines.All(), "Id", "SerialNumber", workorder.EntryThroughMachineId);
+            ViewBag.ReferenceId = new SelectList(Db.Products.All(), "Id", "Reference", workorder.ReferenceId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(workorder);
         }
 
@@ -113,13 +119,14 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Workorder workorder = db.Workorders.GetById(id);
+            Workorder workorder = Db.Workorders.GetById(id);
             if (workorder == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.EntryThroughMachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber", workorder.EntryThroughMachineId);
-            ViewBag.ReferenceId = new SelectList(db.Products.All(), "Id", "Reference", workorder.ReferenceId);
+            ViewBag.EntryThroughMachineId = new SelectList(Db.Machines.All(), "Id", "SerialNumber", workorder.EntryThroughMachineId);
+            ViewBag.ReferenceId = new SelectList(Db.Products.All(), "Id", "Reference", workorder.ReferenceId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(workorder);
         }
 
@@ -132,12 +139,13 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Workorders.Add(workorder);
-                db.SaveChanges();
+                Db.Workorders.Add(workorder);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.EntryThroughMachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber", workorder.EntryThroughMachineId);
-            ViewBag.ReferenceId = new SelectList(db.Products.All(), "Id", "Reference", workorder.ReferenceId);
+            ViewBag.EntryThroughMachineId = new SelectList(Db.Machines.All(), "Id", "SerialNumber", workorder.EntryThroughMachineId);
+            ViewBag.ReferenceId = new SelectList(Db.Products.All(), "Id", "Reference", workorder.ReferenceId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(workorder);
         }
 
@@ -148,11 +156,12 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Workorder workorder = db.Workorders.GetById(id);
+            Workorder workorder = Db.Workorders.GetById(id);
             if (workorder == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(workorder);
         }
 
@@ -161,9 +170,9 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Workorder workorder = db.Workorders.GetById(id);
-            db.Workorders.Delete(workorder);
-            db.SaveChanges();
+            Workorder workorder = Db.Workorders.GetById(id);
+            Db.Workorders.Delete(workorder);
+            Db.SaveChanges();
             return RedirectToAction("Index");
         }
 

@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using MES.Data;
 using MES.Models;
+using MES.Mvc.Helpers;
 
 namespace MES.Mvc.Controllers
 {
@@ -19,9 +20,10 @@ namespace MES.Mvc.Controllers
         public ActionResult Index(string searchString)
         {
             var machines = searchString == "*"
-                ? db.Machines.All().Include(m => m.MachineFamily).Include(m => m.ProductionLine)
-                : db.Machines.All().Include(m => m.MachineFamily).Include(m => m.ProductionLine).Where(m=>m.Name.Contains(searchString));
+                ? Db.Machines.All().Include(m => m.MachineFamily).Include(m => m.ProductionLine)
+                : Db.Machines.All().Include(m => m.MachineFamily).Include(m => m.ProductionLine).Where(m=>m.Name.Contains(searchString));
             ViewBag.SearchString = searchString;
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(machines.ToList());
         }
 
@@ -32,11 +34,12 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Machine machine = db.Machines.GetById(id);
+            Machine machine = Db.Machines.GetById(id);
             if (machine == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(machine);
         }
         // GET: Machines/Details/5
@@ -44,8 +47,9 @@ namespace MES.Mvc.Controllers
         // GET: Machines/Create
         public ActionResult Create()
         {
-            ViewBag.MachineFamilyId = new SelectList(db.MachineFamilies.All(), "Id", "Name");
-            ViewBag.ProductionLineId = new SelectList(db.ProductionLines.All(), "Id", "Name");
+            ViewBag.MachineFamilyId = new SelectList(Db.MachineFamilies.All(), "Id", "Name");
+            ViewBag.ProductionLineId = new SelectList(Db.ProductionLines.All(), "Id", "Name");
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -58,13 +62,14 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Machines.Add(machine);
-                db.SaveChanges();
+                Db.Machines.Add(machine);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.MachineFamilyId = new SelectList(db.MachineFamilies.All(), "Id", "Name", machine.MachineFamilyId);
-            ViewBag.ProductionLineId = new SelectList(db.ProductionLines.All(), "Id", "Name", machine.ProductionLineId);
+            ViewBag.MachineFamilyId = new SelectList(Db.MachineFamilies.All(), "Id", "Name", machine.MachineFamilyId);
+            ViewBag.ProductionLineId = new SelectList(Db.ProductionLines.All(), "Id", "Name", machine.ProductionLineId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(machine);
         }
 
@@ -75,13 +80,14 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Machine machine = db.Machines.GetById(id);
+            Machine machine = Db.Machines.GetById(id);
             if (machine == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.MachineFamilyId = new SelectList(db.MachineFamilies.All(), "Id", "Name", machine.MachineFamilyId);
-            ViewBag.ProductionLineId = new SelectList(db.ProductionLines.All(), "Id", "Name", machine.ProductionLineId);
+            ViewBag.MachineFamilyId = new SelectList(Db.MachineFamilies.All(), "Id", "Name", machine.MachineFamilyId);
+            ViewBag.ProductionLineId = new SelectList(Db.ProductionLines.All(), "Id", "Name", machine.ProductionLineId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(machine);
         }
 
@@ -94,12 +100,13 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Machines.Update(machine);
-                db.SaveChanges();
+                Db.Machines.Update(machine);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.MachineFamilyId = new SelectList(db.MachineFamilies.All(), "Id", "Name", machine.MachineFamilyId);
-            ViewBag.ProductionLineId = new SelectList(db.ProductionLines.All(), "Id", "Name", machine.ProductionLineId);
+            ViewBag.MachineFamilyId = new SelectList(Db.MachineFamilies.All(), "Id", "Name", machine.MachineFamilyId);
+            ViewBag.ProductionLineId = new SelectList(Db.ProductionLines.All(), "Id", "Name", machine.ProductionLineId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(machine);
         }
 
@@ -110,11 +117,12 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Machine machine = db.Machines.GetById(id);
+            Machine machine = Db.Machines.GetById(id);
             if (machine == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(machine);
         }
 
@@ -123,9 +131,9 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Machine machine = db.Machines.GetById(id);
-            db.Machines.Delete(machine);
-            db.SaveChanges();
+            Machine machine = Db.Machines.GetById(id);
+            Db.Machines.Delete(machine);
+            Db.SaveChanges();
             return RedirectToAction("Index");
         }
 

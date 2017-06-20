@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using MES.Mvc.Helpers;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
@@ -72,6 +73,7 @@ namespace MES.Mvc.Controllers
                 Logins = await UserManager.GetLoginsAsync(userId),
                 BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
             };
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(model);
         }
 
@@ -103,6 +105,7 @@ namespace MES.Mvc.Controllers
         // GET: /Manage/AddPhoneNumber
         public ActionResult AddPhoneNumber()
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -114,6 +117,7 @@ namespace MES.Mvc.Controllers
         {
             if (!ModelState.IsValid)
             {
+                ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                 return View(model);
             }
             // Generate the token and send it
@@ -191,6 +195,7 @@ namespace MES.Mvc.Controllers
             }
             // If we got this far, something failed, redisplay form
             ModelState.AddModelError("", "Failed to verify phone");
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(model);
         }
 
@@ -217,6 +222,7 @@ namespace MES.Mvc.Controllers
         // GET: /Manage/ChangePassword
         public ActionResult ChangePassword()
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -228,6 +234,7 @@ namespace MES.Mvc.Controllers
         {
             if (!ModelState.IsValid)
             {
+                ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                 return View(model);
             }
             var result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword, model.NewPassword);
@@ -241,6 +248,7 @@ namespace MES.Mvc.Controllers
                 return RedirectToAction("Index", new { Message = ManageMessageId.ChangePasswordSuccess });
             }
             AddErrors(result);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(model);
         }
 
@@ -248,6 +256,7 @@ namespace MES.Mvc.Controllers
         // GET: /Manage/SetPassword
         public ActionResult SetPassword()
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -271,7 +280,7 @@ namespace MES.Mvc.Controllers
                 }
                 AddErrors(result);
             }
-
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             // If we got this far, something failed, redisplay form
             return View(model);
         }
@@ -292,6 +301,7 @@ namespace MES.Mvc.Controllers
             var userLogins = await UserManager.GetLoginsAsync(User.Identity.GetUserId());
             var otherLogins = AuthenticationManager.GetExternalAuthenticationTypes().Where(auth => userLogins.All(ul => auth.AuthenticationType != ul.LoginProvider)).ToList();
             ViewBag.ShowRemoveButton = user.PasswordHash != null || userLogins.Count > 1;
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(new ManageLoginsViewModel
             {
                 CurrentLogins = userLogins,

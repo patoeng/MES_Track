@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.Core.Common.CommandTrees;
+﻿using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using MES.Data;
 using MES.Models;
+using MES.Mvc.Helpers;
 
 namespace MES.Mvc.Controllers
 {
     public class ProductsController : BaseController
     {
 
-       
-
         public ActionResult Index(string searchString)
         {
-            var products = searchString == "*" ? db.Products.All().Include(m => m.Sequence) : db.Products.All().Include(m => m.Sequence).Where(m=> m.Reference.Contains(searchString.ToUpper()));
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
+            var products = searchString == "*" ? Db.Products.All().Include(m => m.Sequence) : Db.Products.All().Include(m => m.Sequence).Where(m=> m.Reference.Contains(searchString.ToUpper()));
             ViewBag.SearchString = searchString;
             return View(products.ToList());
         }
@@ -31,18 +25,20 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Product product = db.Products.GetById(id);
+            Product product = Db.Products.GetById(id);
             if (product == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(product);
         }
 
         // GET: Products/Create
         public ActionResult Create()
         {
-            ViewBag.SequenceId = new SelectList(db.ProductSequences.All(), "Id", "Name");
+            ViewBag.SequenceId = new SelectList(Db.ProductSequences.All(), "Id", "Name");
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -56,11 +52,11 @@ namespace MES.Mvc.Controllers
            
             if (ModelState.IsValid)
             {
-                db.Products.Add(product);
-                db.SaveChanges();
+                Db.Products.Add(product);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(product);
         }
 
@@ -71,12 +67,13 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Product product = db.Products.GetById(id);
+            Product product = Db.Products.GetById(id);
             if (product == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.SequenceId = new SelectList(db.ProductSequences.All(), "Id", "Name",product.SequenceId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
+            ViewBag.SequenceId = new SelectList(Db.ProductSequences.All(), "Id", "Name",product.SequenceId);
             return View(product);
         }
 
@@ -89,10 +86,11 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Products.Update(product);
-                db.SaveChanges();
+                Db.Products.Update(product);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(product);
         }
 
@@ -103,11 +101,12 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Product product = db.Products.GetById(id);
+            Product product = Db.Products.GetById(id);
             if (product == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(product);
         }
 
@@ -116,9 +115,9 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Product product = db.Products.GetById(id);
-            db.Products.Delete(product);
-            db.SaveChanges();
+            Product product = Db.Products.GetById(id);
+            Db.Products.Delete(product);
+            Db.SaveChanges();
             return RedirectToAction("Index");
         }
 

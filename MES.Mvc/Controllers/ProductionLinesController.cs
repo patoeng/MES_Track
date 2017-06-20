@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using MES.Data;
 using MES.Models;
+using MES.Mvc.Helpers;
 
 namespace MES.Mvc.Controllers
 {
@@ -18,9 +13,10 @@ namespace MES.Mvc.Controllers
         public ActionResult Index(string searchString)
         {
             var productionLines = searchString == "*"
-                ? db.ProductionLines.All()
-                : db.ProductionLines.All().Where(m => m.Name.Contains(searchString));
+                ? Db.ProductionLines.All()
+                : Db.ProductionLines.All().Where(m => m.Name.Contains(searchString));
             ViewBag.SearchString = searchString;
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productionLines.ToList());
         }
 
@@ -31,11 +27,12 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductionLine productionLine = db.ProductionLines.GetById(id);
+            ProductionLine productionLine = Db.ProductionLines.GetById(id);
             if (productionLine == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productionLine);
         }
 
@@ -54,11 +51,11 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.ProductionLines.Add(productionLine);
-                db.SaveChanges();
+                Db.ProductionLines.Add(productionLine);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productionLine);
         }
 
@@ -69,11 +66,12 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductionLine productionLine = db.ProductionLines.GetById(id);
+            ProductionLine productionLine = Db.ProductionLines.GetById(id);
             if (productionLine == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productionLine);
         }
 
@@ -86,10 +84,11 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.ProductionLines.Update(productionLine);
-                db.SaveChanges();
+                Db.ProductionLines.Update(productionLine);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productionLine);
         }
 
@@ -100,11 +99,12 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductionLine productionLine = db.ProductionLines.GetById(id);
+            ProductionLine productionLine = Db.ProductionLines.GetById(id);
             if (productionLine == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productionLine);
         }
 
@@ -113,9 +113,9 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            ProductionLine productionLine = db.ProductionLines.GetById(id);
-            db.ProductionLines.Delete(productionLine);
-            db.SaveChanges();
+            ProductionLine productionLine = Db.ProductionLines.GetById(id);
+            Db.ProductionLines.Delete(productionLine);
+            Db.SaveChanges();
             return RedirectToAction("Index");
         }
 

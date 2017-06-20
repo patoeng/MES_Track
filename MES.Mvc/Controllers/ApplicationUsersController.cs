@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using MES.Mvc.Helpers;
 using MES.Mvc.Models;
 
 namespace MES.Mvc.Controllers
@@ -13,7 +14,7 @@ namespace MES.Mvc.Controllers
        public ActionResult Index()
        {
            var applicationUsers = _db.Users;
-            return View(applicationUsers.ToList());
+           return View(applicationUsers.ToList());
         }
 
         // GET: ApplicationUsers/Details/5
@@ -28,13 +29,15 @@ namespace MES.Mvc.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(applicationUser);
         }
 
         // GET: ApplicationUsers/Create
         public ActionResult Create()
         {
-           // ViewBag.DepartmentId = new SelectList(db.Departments.All(), "Id", "Name");
+            // ViewBag.DepartmentId = new SelectList(db.Departments.All(), "Id", "Name");
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -52,7 +55,8 @@ namespace MES.Mvc.Controllers
                 return RedirectToAction("Index");
             }
 
-           // ViewBag.DepartmentId = new SelectList(db.Departments.All(), "Id", "Name", applicationUser.DepartmentId);
+            // ViewBag.DepartmentId = new SelectList(db.Departments.All(), "Id", "Name", applicationUser.DepartmentId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(applicationUser);
         }
 
@@ -68,7 +72,8 @@ namespace MES.Mvc.Controllers
             {
                 return HttpNotFound();
             }
-           // ViewBag.DepartmentId = new SelectList(db.Departments.All(), "Id", "Name", applicationUser.DepartmentId);
+            // ViewBag.DepartmentId = new SelectList(db.Departments.All(), "Id", "Name", applicationUser.DepartmentId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(applicationUser);
         }
 
@@ -85,7 +90,8 @@ namespace MES.Mvc.Controllers
                 _db.SaveChanges();
                 return RedirectToAction("Index");
             }
-           // ViewBag.DepartmentId = new SelectList(db.Departments.All(), "Id", "Name", applicationUser.DepartmentId);
+            // ViewBag.DepartmentId = new SelectList(db.Departments.All(), "Id", "Name", applicationUser.DepartmentId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(applicationUser);
         }
 
@@ -101,6 +107,7 @@ namespace MES.Mvc.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(applicationUser);
         }
 

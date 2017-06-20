@@ -2,6 +2,7 @@
 using System.Net;
 using System.Web.Mvc;
 using MES.Models;
+using MES.Mvc.Helpers;
 
 namespace MES.Mvc.Controllers
 {
@@ -10,9 +11,10 @@ namespace MES.Mvc.Controllers
         public ActionResult Index(string searchString)
         {
             var productSequences = searchString == "*"
-                ? db.ProductSequences.All()
-                : db.ProductSequences.All().Where(m => m.Name.Contains(searchString));
+                ? Db.ProductSequences.All()
+                : Db.ProductSequences.All().Where(m => m.Name.Contains(searchString));
             ViewBag.SearchString = searchString;
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productSequences.ToList());
         }
 
@@ -23,11 +25,12 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductSequence productSequence = db.ProductSequences.GetById(id);
+            ProductSequence productSequence = Db.ProductSequences.GetById(id);
             if (productSequence == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productSequence);
         }
 
@@ -46,11 +49,11 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.ProductSequences.Add(productSequence);
-                db.SaveChanges();
+                Db.ProductSequences.Add(productSequence);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productSequence);
         }
 
@@ -61,11 +64,12 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductSequence productSequence = db.ProductSequences.GetById(id);
+            ProductSequence productSequence = Db.ProductSequences.GetById(id);
             if (productSequence == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productSequence);
         }
 
@@ -78,10 +82,11 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.ProductSequences.Update(productSequence);
-                db.SaveChanges();
+                Db.ProductSequences.Update(productSequence);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productSequence);
         }
 
@@ -92,11 +97,12 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductSequence productSequence = db.ProductSequences.GetById(id);
+            ProductSequence productSequence = Db.ProductSequences.GetById(id);
             if (productSequence == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productSequence);
         }
 
@@ -105,9 +111,9 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            ProductSequence productSequence = db.ProductSequences.GetById(id);
-            db.ProductSequences.Delete(productSequence);
-            db.SaveChanges();
+            ProductSequence productSequence = Db.ProductSequences.GetById(id);
+            Db.ProductSequences.Delete(productSequence);
+            Db.SaveChanges();
             return RedirectToAction("Index");
         }
 

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using MES.Mvc.Helpers;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
@@ -15,7 +13,7 @@ namespace MES.Mvc.Controllers
     [Authorize]
     public class AccountController : Controller
     {
-        Models.ApplicationDbContext db = new Models.ApplicationDbContext();
+        readonly Models.ApplicationDbContext _db = new Models.ApplicationDbContext();
         private ApplicationSignInManager _signInManager;
 
         private ApplicationUserManager _userManager;
@@ -52,6 +50,7 @@ namespace MES.Mvc.Controllers
         public ActionResult Login(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -64,6 +63,7 @@ namespace MES.Mvc.Controllers
         {
             if (!ModelState.IsValid)
             {
+                ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                 return View(model);
             }
 
@@ -75,12 +75,13 @@ namespace MES.Mvc.Controllers
                 case SignInStatus.Success:
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
+                    ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
-                case SignInStatus.Failure:
                 default:
                     ModelState.AddModelError("", "Invalid login attempt.");
+                    ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                     return View(model);
             }
         }
@@ -93,8 +94,10 @@ namespace MES.Mvc.Controllers
             // Require that the user has already logged in via username/password or external login
             if (!await SignInManager.HasBeenVerifiedAsync())
             {
+                ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                 return View("Error");
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(new VerifyCodeViewModel { Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe });
         }
 
@@ -107,6 +110,7 @@ namespace MES.Mvc.Controllers
         {
             if (!ModelState.IsValid)
             {
+                ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                 return View(model);
             }
 
@@ -120,10 +124,12 @@ namespace MES.Mvc.Controllers
                 case SignInStatus.Success:
                     return RedirectToLocal(model.ReturnUrl);
                 case SignInStatus.LockedOut:
+                    ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                     return View("Lockout");
                 case SignInStatus.Failure:
                 default:
                     ModelState.AddModelError("", "Invalid code.");
+                    ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                     return View(model);
             }
         }
@@ -133,7 +139,8 @@ namespace MES.Mvc.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
-            ViewBag.RolesId = new SelectList(db.Roles.Where(u => !u.Name.Contains("SuperAdmin"))
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
+            ViewBag.RoleId = new SelectList(_db.Roles.Where(u => !u.Name.Contains("SuperAdmin"))
                                                .ToList(), "Name", "Name");
             return View();
         }
@@ -147,26 +154,22 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email};
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
-                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
-                    // Send an email with this link
-                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
-
+                    // Add Role for new user.
+                    await this.UserManager.AddToRoleAsync(user.Id, model.RoleId);   
                     return RedirectToAction("Index", "Home");
                 }
                 AddErrors(result);
             }
 
-            ViewBag.RolesId = new SelectList(db.Roles.Where(u => !u.Name.Contains("SuperAdmin"))
+            ViewBag.RoleId = new SelectList(_db.Roles.Where(u => !u.Name.Contains("SuperAdmin"))
                                                .ToList(), "Name", "Name");
             // If we got this far, something failed, redisplay form
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(model);
         }
 
@@ -177,9 +180,11 @@ namespace MES.Mvc.Controllers
         {
             if (userId == null || code == null)
             {
+                ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                 return View("Error");
             }
             var result = await UserManager.ConfirmEmailAsync(userId, code);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
@@ -188,6 +193,7 @@ namespace MES.Mvc.Controllers
         [AllowAnonymous]
         public ActionResult ForgotPassword()
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -203,6 +209,7 @@ namespace MES.Mvc.Controllers
                 var user = await UserManager.FindByNameAsync(model.Email);
                 if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
                 {
+                    ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                     // Don't reveal that the user does not exist or is not confirmed
                     return View("ForgotPasswordConfirmation");
                 }
@@ -216,6 +223,7 @@ namespace MES.Mvc.Controllers
             }
 
             // If we got this far, something failed, redisplay form
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(model);
         }
 
@@ -224,6 +232,7 @@ namespace MES.Mvc.Controllers
         [AllowAnonymous]
         public ActionResult ForgotPasswordConfirmation()
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -232,6 +241,7 @@ namespace MES.Mvc.Controllers
         [AllowAnonymous]
         public ActionResult ResetPassword(string code)
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return code == null ? View("Error") : View();
         }
 
@@ -242,6 +252,7 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ResetPassword(ResetPasswordViewModel model)
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -266,6 +277,7 @@ namespace MES.Mvc.Controllers
         [AllowAnonymous]
         public ActionResult ResetPasswordConfirmation()
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -276,6 +288,7 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ExternalLogin(string provider, string returnUrl)
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             // Request a redirect to the external login provider
             return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
         }
@@ -285,6 +298,7 @@ namespace MES.Mvc.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> SendCode(string returnUrl, bool rememberMe)
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             var userId = await SignInManager.GetVerifiedUserIdAsync();
             if (userId == null)
             {
@@ -302,6 +316,7 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SendCode(SendCodeViewModel model)
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             if (!ModelState.IsValid)
             {
                 return View();
@@ -320,6 +335,7 @@ namespace MES.Mvc.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> ExternalLoginCallback(string returnUrl)
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync();
             if (loginInfo == null)
             {
@@ -352,6 +368,7 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model, string returnUrl)
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             if (User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Index", "Manage");
@@ -389,6 +406,7 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
             return RedirectToAction("Index", "Home");
         }
@@ -398,6 +416,7 @@ namespace MES.Mvc.Controllers
         [AllowAnonymous]
         public ActionResult ExternalLoginFailure()
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 

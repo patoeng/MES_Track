@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using MES.Data;
-using MES.Data.Migrations;
 using MES.Models;
-using MES.Mvc.Controllers;
+using MES.Mvc.Helpers;
 
-namespace MES.Mvc
+namespace MES.Mvc.Controllers
 {
     public class DepartmentsController : BaseController
     {
@@ -21,9 +14,10 @@ namespace MES.Mvc
         public ActionResult Index(string searchString)
         {
             var department = searchString == "*"
-                ? db.Departments.All()
-                : db.Departments.All().Where(m => m.Name.Contains(searchString));
+                ? Db.Departments.All()
+                : Db.Departments.All().Where(m => m.Name.Contains(searchString));
             ViewBag.SearchString = searchString;
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(department.ToList());
         }
 
@@ -34,17 +28,19 @@ namespace MES.Mvc
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Department department = db.Departments.GetById(id);
+            Department department = Db.Departments.GetById(id);
             if (department == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(department);
         }
 
         // GET: Departments/Create
         public ActionResult Create()
         {
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -57,11 +53,11 @@ namespace MES.Mvc
         {
             if (ModelState.IsValid)
             {
-                db.Departments.Add(department);
-                db.SaveChanges();
+                Db.Departments.Add(department);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(department);
         }
 
@@ -72,11 +68,12 @@ namespace MES.Mvc
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Department department = db.Departments.GetById(id);
+            Department department = Db.Departments.GetById(id);
             if (department == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(department);
         }
 
@@ -89,10 +86,11 @@ namespace MES.Mvc
         {
             if (ModelState.IsValid)
             {
-                db.Departments.Update(department);
-                db.SaveChanges();
+                Db.Departments.Update(department);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(department);
         }
 
@@ -103,11 +101,12 @@ namespace MES.Mvc
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Department department = db.Departments.GetById(id);
+            Department department = Db.Departments.GetById(id);
             if (department == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(department);
         }
 
@@ -116,9 +115,9 @@ namespace MES.Mvc
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Department department = db.Departments.GetById(id);
-            db.Departments.Delete(department);
-            db.SaveChanges();
+            Department department = Db.Departments.GetById(id);
+            Db.Departments.Delete(department);
+            Db.SaveChanges();
             return RedirectToAction("Index");
         }
 

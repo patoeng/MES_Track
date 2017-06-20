@@ -25,6 +25,7 @@ namespace MES.Mvc.Controllers
             ddProcessResult.Add("All");
             ViewBag.State = new SelectList(ddProcessResult);
             ViewBag.LastStatus = new SelectList(new List<string> { "No", "Yes" });
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -49,7 +50,7 @@ namespace MES.Mvc.Controllers
             if (lastStatus == "No")
             {
                 var productProcesses =
-                    db.ProductProcesses.All()
+                    Db.ProductProcesses.All()
                         .Include(p => p.Machine).Include(p => p.Product).Include(p => p.Workorder)
                         .Where(m =>
                             (m.FullName.Contains(reference) || reference == "") &&
@@ -59,12 +60,13 @@ namespace MES.Mvc.Controllers
                             m.DateTime <= ctoDateTime &&
                             (m.Result == lastStateEnum || state.Contains("All"))
                         ).OrderByDescending(m => m.DateTime).Take(500);
+                ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                 return View(productProcesses.OrderBy(m=>m.DateTime).ToList());
             }
             else
             {
                 var productProcesses =
-                    db.ProductProcesses.All()
+                    Db.ProductProcesses.All()
                         .Where(m =>
                             (m.FullName.Contains(reference) || reference == "") &&
                             (m.Machine.SerialNumber.Contains(machineCode) || machineCode == "") &&
@@ -84,7 +86,7 @@ namespace MES.Mvc.Controllers
                     var ll = kk.ProductProcess.OrderByDescending(m => m.DateTime).FirstOrDefault();
                     pp.Add(ll);
                 }
-               
+                ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                 return View(pp.OrderBy(m=>m.DateTime).Take(1000));
             }
            
@@ -112,7 +114,7 @@ namespace MES.Mvc.Controllers
             if (lastStatus == "No")
             {
                 var productProcesses =
-                    db.ProductProcesses.All()
+                    Db.ProductProcesses.All()
                         .Include(p => p.Machine).Include(p => p.Product).Include(p => p.Workorder)
                         .Where(m =>
                             (m.FullName.Contains(reference) || reference == "") &&
@@ -124,12 +126,13 @@ namespace MES.Mvc.Controllers
                         ).OrderByDescending(m => m.DateTime);
                 var j = productProcesses.ToList();
                 ViewBag.ExcelFile = SummaryReports.ProductProcessToExcelFile(j);
+                ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                 return View();
             }
             else
             {
                 var productProcesses =
-                    db.ProductProcesses.All()
+                    Db.ProductProcesses.All()
                         .Where(m =>
                             (m.FullName.Contains(reference) || reference == "") &&
                             (m.Machine.SerialNumber.Contains(machineCode) || machineCode == "") &&
@@ -151,6 +154,7 @@ namespace MES.Mvc.Controllers
                     pp.Add(ll);
                 }
                 ViewBag.ExcelFile = SummaryReports.ProductProcessToExcelFile(pp.OrderBy(m => m.DateTime).ToList());
+                ViewBag.IsAdmin = UserControl.IsAdminUser(User);
                 return View();
             }
         }
@@ -162,20 +166,22 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductProcess productProcess = db.ProductProcesses.GetById(id);
+            ProductProcess productProcess = Db.ProductProcesses.GetById(id);
             if (productProcess == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productProcess);
         }
 
         // GET: ProductProcesses/Create
         public ActionResult Create()
         {
-            ViewBag.MachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber");
-            ViewBag.ProductId = new SelectList(db.Products.All(), "Id", "Reference");
-            ViewBag.WorkorderId = new SelectList(db.Workorders.All(), "Id", "Number");
+            ViewBag.MachineId = new SelectList(Db.Machines.All(), "Id", "SerialNumber");
+            ViewBag.ProductId = new SelectList(Db.Products.All(), "Id", "Reference");
+            ViewBag.WorkorderId = new SelectList(Db.Workorders.All(), "Id", "Number");
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
 
@@ -188,14 +194,15 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.ProductProcesses.Add(productProcess);
-                db.SaveChanges();
+                Db.ProductProcesses.Add(productProcess);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.MachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber", productProcess.MachineId);
-            ViewBag.ProductId = new SelectList(db.Products.All(), "Id", "Reference", productProcess.ProductId);
-            ViewBag.WorkorderId = new SelectList(db.Workorders.All(), "Id", "Number", productProcess.WorkorderId);
+            ViewBag.MachineId = new SelectList(Db.Machines.All(), "Id", "SerialNumber", productProcess.MachineId);
+            ViewBag.ProductId = new SelectList(Db.Products.All(), "Id", "Reference", productProcess.ProductId);
+            ViewBag.WorkorderId = new SelectList(Db.Workorders.All(), "Id", "Number", productProcess.WorkorderId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productProcess);
         }
 
@@ -206,14 +213,15 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductProcess productProcess = db.ProductProcesses.GetById(id);
+            ProductProcess productProcess = Db.ProductProcesses.GetById(id);
             if (productProcess == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.MachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber", productProcess.MachineId);
-            ViewBag.ProductId = new SelectList(db.Products.All(), "Id", "Reference", productProcess.ProductId);
-            ViewBag.WorkorderId = new SelectList(db.Workorders.All(), "Id", "Number", productProcess.WorkorderId);
+            ViewBag.MachineId = new SelectList(Db.Machines.All(), "Id", "SerialNumber", productProcess.MachineId);
+            ViewBag.ProductId = new SelectList(Db.Products.All(), "Id", "Reference", productProcess.ProductId);
+            ViewBag.WorkorderId = new SelectList(Db.Workorders.All(), "Id", "Number", productProcess.WorkorderId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productProcess);
         }
 
@@ -226,13 +234,14 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.ProductProcesses.Update(productProcess);
-                db.SaveChanges();
+                Db.ProductProcesses.Update(productProcess);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.MachineId = new SelectList(db.Machines.All(), "Id", "SerialNumber", productProcess.MachineId);
-            ViewBag.ProductId = new SelectList(db.Products.All(), "Id", "Reference", productProcess.ProductId);
-            ViewBag.WorkorderId = new SelectList(db.Workorders.All(), "Id", "Number", productProcess.WorkorderId);
+            ViewBag.MachineId = new SelectList(Db.Machines.All(), "Id", "SerialNumber", productProcess.MachineId);
+            ViewBag.ProductId = new SelectList(Db.Products.All(), "Id", "Reference", productProcess.ProductId);
+            ViewBag.WorkorderId = new SelectList(Db.Workorders.All(), "Id", "Number", productProcess.WorkorderId);
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productProcess);
         }
 
@@ -243,11 +252,12 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductProcess productProcess = db.ProductProcesses.GetById(id);
+            ProductProcess productProcess = Db.ProductProcesses.GetById(id);
             if (productProcess == null)
             {
                 return HttpNotFound();
             }
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productProcess);
         }
 
@@ -256,9 +266,9 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            ProductProcess productProcess = db.ProductProcesses.GetById(id);
-            db.ProductProcesses.Delete(productProcess);
-            db.SaveChanges();
+            ProductProcess productProcess = Db.ProductProcesses.GetById(id);
+            Db.ProductProcesses.Delete(productProcess);
+            Db.SaveChanges();
             return RedirectToAction("Index");
         }
 

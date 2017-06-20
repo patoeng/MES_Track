@@ -2,6 +2,7 @@
 using System.Net;
 using System.Web.Mvc;
 using MES.Models;
+using MES.Mvc.Helpers;
 
 namespace MES.Mvc.Controllers
 {
@@ -10,9 +11,10 @@ namespace MES.Mvc.Controllers
         public ActionResult Index(string searchString)
         {
             var machineFamilies = searchString == "*"
-                ? db.MachineFamilies.All()
-                : db.MachineFamilies.All().Where(m => m.Name.Contains(searchString));
+                ? Db.MachineFamilies.All()
+                : Db.MachineFamilies.All().Where(m => m.Name.Contains(searchString));
             ViewBag.SearchString = searchString;
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(machineFamilies.ToList());
         }
 
@@ -23,7 +25,7 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            MachineFamily machineFamily = db.MachineFamilies.GetById(id);
+            MachineFamily machineFamily = Db.MachineFamilies.GetById(id);
             if (machineFamily == null)
             {
                 return HttpNotFound();
@@ -46,8 +48,8 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.MachineFamilies.Add(machineFamily);
-                db.SaveChanges();
+                Db.MachineFamilies.Add(machineFamily);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
@@ -61,7 +63,7 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            MachineFamily machineFamily = db.MachineFamilies.GetById(id);
+            MachineFamily machineFamily = Db.MachineFamilies.GetById(id);
             if (machineFamily == null)
             {
                 return HttpNotFound();
@@ -78,8 +80,8 @@ namespace MES.Mvc.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.MachineFamilies.Update(machineFamily);
-                db.SaveChanges();
+                Db.MachineFamilies.Update(machineFamily);
+                Db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(machineFamily);
@@ -92,7 +94,7 @@ namespace MES.Mvc.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            MachineFamily machineFamily = db.MachineFamilies.GetById(id);
+            MachineFamily machineFamily = Db.MachineFamilies.GetById(id);
             if (machineFamily == null)
             {
                 return HttpNotFound();
@@ -105,9 +107,9 @@ namespace MES.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            MachineFamily machineFamily = db.MachineFamilies.GetById(id);
-            db.MachineFamilies.Delete(machineFamily);
-            db.SaveChanges();
+            MachineFamily machineFamily = Db.MachineFamilies.GetById(id);
+            Db.MachineFamilies.Delete(machineFamily);
+            Db.SaveChanges();
             return RedirectToAction("Index");
         }
 
