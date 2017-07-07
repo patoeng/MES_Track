@@ -204,6 +204,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ProductionLinesController.cs" />
     <Compile Include="Controllers\ProductProcessesController.cs" />
+    <Compile Include="Controllers\ProductProcessListsController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\ProductSequenceItemsController.cs" />
     <Compile Include="Controllers\ProductSequencesController.cs" />
@@ -389,6 +390,11 @@
     <Content Include="Views\ProductProcesses\Excel.cshtml" />
     <Content Include="Views\Workorders\Excel.cshtml" />
     <Content Include="Views\Workorders\Search.cshtml" />
+    <Content Include="Views\ProductProcessLists\Create.cshtml" />
+    <Content Include="Views\ProductProcessLists\Delete.cshtml" />
+    <Content Include="Views\ProductProcessLists\Details.cshtml" />
+    <Content Include="Views\ProductProcessLists\Edit.cshtml" />
+    <Content Include="Views\ProductProcessLists\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

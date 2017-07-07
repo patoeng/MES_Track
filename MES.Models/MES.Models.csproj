@@ -58,6 +58,7 @@
     <Compile Include="ProductProcess.cs" />
     <Compile Include="ProductionLine.cs" />
     <Compile Include="Product.cs" />
+    <Compile Include="ProductProcessList.cs" />
     <Compile Include="ProductSequence.cs" />
     <Compile Include="ProductSequenceItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -77,7 +77,9 @@
                                 <th>
                                     @Html.DisplayNameFor(model => model.EntryThroughMachine.Name)
                                 </th>
-
+                                <th>
+                                    @Html.DisplayNameFor(model => model.UseProductSequence.Name)
+                                </th>
                                 <th></th>
                             </tr>
 
@@ -100,6 +102,9 @@
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.EntryThroughMachine.Name)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.UseProductSequence.Name)
                                     </td>
 @if (ViewBag.IsAdmin == true)
 {

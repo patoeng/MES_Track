@@ -37,7 +37,7 @@ namespace MES.Data.Migrations
         public IRepository<Product> Products => this.GetRepository<Product>();
         public IRepository<ProductSequenceItem> ProductSequenceItems => this.GetRepository<ProductSequenceItem>();
         public IRepository<ProductSequence> ProductSequences => this.GetRepository<ProductSequence>();
-
+        public IRepository<ProductProcessList> ProductProcessLists => this.GetRepository<ProductProcessList>();
         public int SaveChanges()
         {
             return this._context.SaveChanges();
@@ -53,5 +53,7 @@ namespace MES.Data.Migrations
 
             return (IRepository<T>)this._repositories[typeof(T)];
         }
+
+        
     }
 }

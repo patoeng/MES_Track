@@ -43,5 +43,7 @@ namespace MES.Data
         public DbSet<MES.Models.ProductProcess> ProductProcesses { get; set; }
 
         public DbSet<MES.Models.Workorder> Workorders { get; set; }
+
+        public System.Data.Entity.DbSet<MES.Models.ProductProcessList> ProductProcessLists { get; set; }
     }
 }

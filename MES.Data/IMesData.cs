@@ -15,7 +15,7 @@ namespace MES.Data
         IRepository<Product> Products { get; }
         IRepository<ProductSequenceItem>ProductSequenceItems { get; }
         IRepository<ProductSequence> ProductSequences { get; }
-
+        IRepository<ProductProcessList> ProductProcessLists { get; }
         int SaveChanges();
     }
 }

@@ -23,6 +23,8 @@ namespace MES.Models
         public int? EntryThroughMachineId { get; set; }
         public virtual Machine EntryThroughMachine { get; set; }
         public virtual Product Reference { get; set; }
-       
+        [DisplayName("Product Sequence Used")]
+        public int UseProductSequenceId { get; set; }
+        public ProductSequence UseProductSequence { get; set; }
     }
 }
