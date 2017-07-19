@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using MES.Data;
 using MES.Models;
 using MES.Mvc.Excel;
 using MES.Mvc.Helpers;
+using MES.Mvc.Models;
 
 namespace MES.Mvc.Controllers
 {
@@ -30,42 +29,70 @@ namespace MES.Mvc.Controllers
 
         [HttpPost]
         [MultipleButton(Name = "action", Argument = "Search")]
-        public ActionResult Search(string workOrder,  string fromDateTime,
+        public ActionResult Search(string workOrder,string reference,  string fromDateTime,
             string toDateTime)
         {
+            reference = reference ?? "";
+            workOrder = workOrder ?? "";
             var cfromDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now : DateTime.Parse(fromDateTime);
             var ctoDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now.AddDays(1) : DateTime.Parse(toDateTime);
             ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
             ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
+            var isAdmin = UserControl.IsAdminUser(User);
+            var parameters = new[]
+            {
+                new SqlParameter {ParameterName = "@workorder",Value = workOrder},
+                new SqlParameter {ParameterName = "@reference",Value = reference},
+                new SqlParameter {ParameterName = "@startdate",Value = cfromDateTime},
+                new SqlParameter {ParameterName = "@enddate",Value = ctoDateTime}
+            };
 
-            var workOrders = Db.Workorders.All().Where(
-                m => (m.Number.Contains(workOrder) || workOrder == "") &&
-                     m.DateTime >= cfromDateTime &&
-                     m.DateTime <= ctoDateTime
-            ).OrderByDescending(k => k.DateTime);
+
+            var db = new Data.ApplicationDbContext();
+            var data = isAdmin ?
+                 db.Database.SqlQuery<WorkOrderDetailsModels>(
+                     "exec usp_web_WorkOrderWithDetails @workorder,@reference,@startdate,@enddate", parameters).ToList() :
+                 db.Database.SqlQuery<WorkOrderDetailsModels>(
+                     "exec usp_web_WorkOrderWithDetails2 @workorder,@reference,@startdate,@enddate", parameters).ToList();
+
             ViewBag.IsAdmin = UserControl.IsAdminUser(User);
-            return View(workOrders.ToList());
+           
+            return View(data);
         }
         [HttpPost]
         [MultipleButton(Name = "action", Argument = "Excel")]
-        public ActionResult Excel(string workOrder, string fromDateTime,
+        public ActionResult Excel(string workOrder, string reference, string fromDateTime,
            string toDateTime)
         {
+            reference = reference ?? "";
+            workOrder = workOrder ?? "";
             var cfromDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now : DateTime.Parse(fromDateTime);
             var ctoDateTime = string.IsNullOrEmpty(fromDateTime) ? DateTime.Now.AddDays(1) : DateTime.Parse(toDateTime);
             ViewBag.fromDateTime = cfromDateTime.ToString("yyyy-MM-dd HH:mm");
             ViewBag.toDateTime = ctoDateTime.ToString("yyyy-MM-dd HH:mm");
+            var isAdmin = UserControl.IsAdminUser(User);
+            var parameters = new[]
+           {
+                new SqlParameter {ParameterName = "@workorder",Value = workOrder},
+                new SqlParameter {ParameterName = "@reference",Value = reference},
+                new SqlParameter {ParameterName = "@startdate",Value = cfromDateTime},
+                new SqlParameter {ParameterName = "@enddate",Value = ctoDateTime},
+               
+            };
 
-            var workOrders = Db.Workorders.All().Where(
-                m => (m.Number.Contains(workOrder) || workOrder == "") &&
-                     m.DateTime >= cfromDateTime &&
-                     m.DateTime <= ctoDateTime
-            ).OrderByDescending(k => k.DateTime);
 
-            var j = workOrders.ToList();
-            ViewBag.ExcelFile = SummaryReports.WorkOrderToExcelFile(j);
+            var db = new Data.ApplicationDbContext();
+            var data = isAdmin ?
+                db.Database.SqlQuery<WorkOrderDetailsModels>(
+                    "exec usp_web_WorkOrderWithDetails @workorder,@reference,@startdate,@enddate", parameters).ToList():
+                db.Database.SqlQuery<WorkOrderDetailsModels>(
+                    "exec usp_web_WorkOrderWithDetails2 @workorder,@reference,@startdate,@enddate", parameters).ToList();
+            
+           
+           
+            ViewBag.ExcelFile = SummaryReports.WorkOrderToExcelFile(data,isAdmin);
             ViewBag.IsAdmin = UserControl.IsAdminUser(User);
-            return View(j);
+            return View();
         }
         // GET: Workorders/Details/5
         public ActionResult Details(int? id)

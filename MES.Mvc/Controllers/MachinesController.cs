@@ -19,6 +19,7 @@ namespace MES.Mvc.Controllers
         // GET: Machines
         public ActionResult Index(string searchString)
         {
+            searchString = searchString ?? "*";
             var machines = searchString == "*"
                 ? Db.Machines.All().Include(m => m.MachineFamily).Include(m => m.ProductionLine)
                 : Db.Machines.All().Include(m => m.MachineFamily).Include(m => m.ProductionLine).Where(m=>m.Name.Contains(searchString));

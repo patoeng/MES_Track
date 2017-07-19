@@ -37,7 +37,8 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Name)
+                                        @Html.ActionLink( item.Name , "Index", "ProductSequenceItems", new {sequenceId = item.Id}, null)
+
                                     </td>
                                     @if (ViewBag.IsAdmin == true)
                                     {

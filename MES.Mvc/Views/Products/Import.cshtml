@@ -1,0 +1,36 @@
+﻿
+@model MES.Mvc.Models.ExcelFileModel
+
+@{
+    ViewBag.Title = "Index";
+}
+@using (Html.BeginForm("FileImport","Products", FormMethod.Post, new{ enctype = "multipart/form-data" }))
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h5 class="panel-title">
+                        Upload excel File @ViewBag.RawUrl
+                    </h5>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            @Html.TextBoxFor(m=>m.File, new { type = "file", @class="form form-control", accept=".xlsx" })
+                            @Html.ValidationMessageFor(m => m.File)
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <br />
+                            <input type="submit" value="Upload File Excel" class="btn btn-success"  />                                              
+                        </div>
+                    </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+   
+}
+

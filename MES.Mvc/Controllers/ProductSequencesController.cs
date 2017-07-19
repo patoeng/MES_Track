@@ -10,7 +10,7 @@ namespace MES.Mvc.Controllers
     {
         public ActionResult Index(string searchString)
         {
-            var productSequences = searchString == "*"
+            var productSequences = (searchString==null ||  searchString == "*")
                 ? Db.ProductSequences.All()
                 : Db.ProductSequences.All().Where(m => m.Name.Contains(searchString));
             ViewBag.SearchString = searchString;

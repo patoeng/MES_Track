@@ -1,12 +1,10 @@
-﻿@model IEnumerable<MES.Models.Workorder>
+﻿@model IEnumerable<MES.Models.Product>
 
 @{
     ViewBag.Title = "Index";
 }
 @using (Html.BeginForm(FormMethod.Post))
 {
-
-
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-success">
@@ -18,44 +16,47 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-2">
-                            @Html.Label("WorkOrder Number")
-                            @Html.TextBox("workOrder", ViewBag.workOrder as string, new { @class = "form-control" })
-                        </div>
-                        <div class="col-md-2">
                             @Html.Label("Reference")
                             @Html.TextBox("reference", ViewBag.reference as string, new { @class = "form-control" })
                         </div>
                         <div class="col-md-3">
-                            @Html.Label("From Date")
-                            @Html.TextBox("fromDateTime", ViewBag.fromDateTime as string, new { @class = "form-control form_datetime" })
+                            @Html.Label("Article Number")
+                            @Html.TextBox("article", ViewBag.article as string, new { @class = "form-control" })
                         </div>
                         <div class="col-md-3">
-                            @Html.Label("To Date")
-                            @Html.TextBox("toDateTime", ViewBag.toDateTime as string, new { @class = "form-control form_datetime" })
-                        </div>
+                            @Html.Label("Suquence", htmlAttributes: new { @class = "control-label col-md-2" })
+                            @Html.DropDownList("SequenceId", null, new { @class = "form-control" })                            
+                            
 
+                        </div>
                         <div class="col-md-2">
                             <br />
-                            <input type="submit" value="Export To Excel" class="btn btn-success" name="action:Excel" />
+                            <input type="submit" value="Export To Excel" class="btn btn-success" name="action:Excel" />                   
+                        </div>
+                        <div class="col-md-2">
+                            <br />
+                            @Html.ActionLink("Import From Excel", "Import", null, new { @class = "btn btn-warning"})
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <br />
-                            <input type="submit" value="Search" class="btn btn-success" name="action:Search" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <br />
+                                <input type="submit" value="Search" class="btn btn-success" name="action:Index" />
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+   
 }
+
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-success">
             <div class="panel-heading">
                 <h5 class="panel-title">
-                    Excel File To Download
+                    Excel File To Be Downloaded
                 </h5>
             </div>
             <div class="panel-body">
@@ -66,14 +67,5 @@
                 </div>
             </div>
         </div>
-    </div>
+      </div>
 </div>
-@section scripts {
-    @Scripts.Render("~/bundles/datetime")
-    <script type="text/javascript">
-
-                                $(".form_datetime").datetimepicker({ format: 'yyyy-mm-dd hh:ii' });
-
-    </script>
-
-}

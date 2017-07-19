@@ -14,12 +14,19 @@ namespace MES.Mvc.Controllers
         // GET: ProductSequenceItems
        
 
-        public ActionResult Index(string searchString)
+        public ActionResult Index(string searchString, int? sequenceId)
         {
-
+            if (searchString == null)
+            {
+                searchString = "*";
+            }
+            if (sequenceId == null)
+            {
+                sequenceId = 0;
+            }
             var productSequenceItems = searchString == "*"
-                ? Db.ProductSequenceItems.All().Include(p => p.MachineFamily).Include(p => p.ProductSequence)
-                : Db.ProductSequenceItems.All().Include(p => p.MachineFamily).Include(p => p.ProductSequence).Where(m=>m.MachineFamily.Name.Contains(searchString));
+                ? Db.ProductSequenceItems.All().Include(p => p.MachineFamily).Include(p => p.ProductSequence).Where(m=>m.ProductSequenceId== sequenceId || sequenceId==0)
+                : Db.ProductSequenceItems.All().Include(p => p.MachineFamily).Include(p => p.ProductSequence).Where(m=>m.MachineFamily.Name.Contains(searchString)&&(m.ProductSequenceId == sequenceId || sequenceId == 0));
             ViewBag.SearchString = searchString;
             ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View(productSequenceItems.ToList());

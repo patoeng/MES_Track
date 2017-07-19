@@ -13,6 +13,7 @@ namespace MES.Mvc.Controllers
       
         public ActionResult Index(string searchString)
         {
+            searchString = searchString ?? "*";
             var department = searchString == "*"
                 ? Db.Departments.All()
                 : Db.Departments.All().Where(m => m.Name.Contains(searchString));

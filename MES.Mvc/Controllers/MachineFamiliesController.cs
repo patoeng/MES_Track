@@ -10,6 +10,7 @@ namespace MES.Mvc.Controllers
     {
         public ActionResult Index(string searchString)
         {
+            searchString = searchString ?? "*";
             var machineFamilies = searchString == "*"
                 ? Db.MachineFamilies.All()
                 : Db.MachineFamilies.All().Where(m => m.Name.Contains(searchString));

@@ -21,6 +21,10 @@
                             @Html.Label("WorkOrder Number")
                             @Html.TextBox("workOrder", ViewBag.workOrder as string, new { @class = "form-control" })
                         </div>
+                        <div class="col-md-2">
+                            @Html.Label("Reference")
+                            @Html.TextBox("reference", ViewBag.reference as string, new { @class = "form-control" })
+                        </div>
                         <div class="col-md-3">
                             @Html.Label("From Date")
                             @Html.TextBox("fromDateTime", ViewBag.fromDateTime as string, new { @class = "form-control form_datetime" })
@@ -29,9 +33,7 @@
                             @Html.Label("To Date")
                             @Html.TextBox("toDateTime", ViewBag.toDateTime as string, new { @class = "form-control form_datetime" })
                         </div>
-                        <div class="col-md-2">
-                           
-                        </div>
+
                         <div class="col-md-2">
                             <br />
                             <input type="submit" value="Export To Excel" class="btn btn-success" name="action:Excel" />

@@ -12,6 +12,7 @@ namespace MES.Mvc.Controllers
 
         public ActionResult Index(string searchString)
         {
+            searchString = searchString ?? "*";
             var productionLines = searchString == "*"
                 ? Db.ProductionLines.All()
                 : Db.ProductionLines.All().Where(m => m.Name.Contains(searchString));

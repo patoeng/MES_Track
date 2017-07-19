@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MES.Models.Workorder>
+﻿@model IEnumerable<MES.Mvc.Models.WorkOrderDetailsModels>
 
 @{
     ViewBag.Title = "Index";
@@ -21,6 +21,10 @@
                             @Html.Label("WorkOrder Number")
                             @Html.TextBox("workOrder", ViewBag.workOrder as string, new { @class = "form-control" })
                         </div>
+                        <div class="col-md-2">
+                            @Html.Label("Reference")
+                            @Html.TextBox("reference", ViewBag.reference as string, new { @class = "form-control" })
+                        </div>
                         <div class="col-md-3">
                             @Html.Label("From Date")
                             @Html.TextBox("fromDateTime", ViewBag.fromDateTime as string, new { @class = "form-control form_datetime" })
@@ -29,9 +33,7 @@
                             @Html.Label("To Date")
                             @Html.TextBox("toDateTime", ViewBag.toDateTime as string, new { @class = "form-control form_datetime" })
                         </div>
-                        <div class="col-md-2">
-                           
-                        </div>
+                        
                         <div class="col-md-2">
                             <br />
                             <input type="submit" value="Export To Excel" class="btn btn-success" name="action:Excel" />
@@ -65,7 +67,7 @@
                                     @Html.DisplayNameFor(model => model.Number)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Reference.Reference)
+                                    @Html.DisplayNameFor(model => model.Reference)
                                 </th>
 
                                 <th>
@@ -75,11 +77,47 @@
                                     @Html.DisplayNameFor(model => model.DateTime)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.EntryThroughMachine.Name)
+                                    @Html.DisplayNameFor(model => model.FrontLine)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.UseProductSequence.Name)
+                                    @Html.DisplayNameFor(model => model.UseProductSequence)
                                 </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Machine)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.GeneratedQty)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ProcessQty)
+                                </th>
+                                @if (ViewBag.IsAdmin)
+                                {
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.PassQty)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.FailQty)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.DismantleQty)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.PosDismantlePassQty)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.PosDismantleFailQty)
+                                    </th>
+                                }
+                                else
+                                {
+                                    <th>
+                                        Qty Pass
+                                    </th>
+                                    <th>
+                                        Qty Reject
+                                    </th>
+                                }
                                 <th></th>
                             </tr>
 
@@ -91,7 +129,7 @@
                                         @Html.DisplayFor(modelItem => item.Number)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Reference.Reference)
+                                        @Html.DisplayFor(modelItem => item.Reference)
                                     </td>
                                     
                                     <td>
@@ -101,19 +139,48 @@
                                         @Html.DisplayFor(modelItem => item.DateTime)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.EntryThroughMachine.Name)
+                                        @Html.DisplayFor(modelItem => item.FrontLine)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.UseProductSequence.Name)
+                                        @Html.DisplayFor(modelItem => item.UseProductSequence)
                                     </td>
-@if (ViewBag.IsAdmin == true)
-{
-    <td>
-        @Html.ActionLink("Edit", "Edit", new {id = item.Id}) |
-        @Html.ActionLink("Details", "Details", new {id = item.Id}) |
-        @Html.ActionLink("Delete", "Delete", new {id = item.Id})
-    </td>
-}
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Machine)
+                                    </td>
+                                    <td>
+                                       @Html.DisplayFor(modelItem => item.GeneratedQty)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ProcessQty)
+                                    </td>
+                                    @if (ViewBag.IsAdmin)
+                                    {
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PassQty)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.FailQty)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.DismantleQty)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PosDismantlePassQty)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PosDismantleFailQty)
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PosDismantlePassQty)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PosDismantleFailQty)
+                                        </td>
+                                    }
+
                                 </tr>
                             }
 

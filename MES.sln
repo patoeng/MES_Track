@@ -13,16 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MES.Mvc", "MES.Mvc\MES.Mvc.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MES.Logics", "MES.Logics\MES.Logics.csproj", "{C4DCC53E-29D1-4193-B604-F9ED655FEAEC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hook", "Hook", "{129505F8-9F84-4A73-A57B-09795B85D1CB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PasteNamePlate", "PasteNamePlate\PasteNamePlate.csproj", "{75FDF695-D96A-4107-9838-2761141CDDFB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlcModbus", "PlcModbus\PlcModbus.csproj", "{EE8CCD2E-5C32-4BB3-8DFC-100C2B077EF5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MES.Datalog", "MES.Datalog\MES.Datalog.csproj", "{0D8A9E46-E71A-4804-953C-71708AA0AF0B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MES.Setting", "MES.Setting\MES.Setting.csproj", "{62C1652E-F22F-4057-A0C6-429D8C90F0F0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,28 +39,8 @@ Global
 		{C4DCC53E-29D1-4193-B604-F9ED655FEAEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4DCC53E-29D1-4193-B604-F9ED655FEAEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4DCC53E-29D1-4193-B604-F9ED655FEAEC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{75FDF695-D96A-4107-9838-2761141CDDFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{75FDF695-D96A-4107-9838-2761141CDDFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{75FDF695-D96A-4107-9838-2761141CDDFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{75FDF695-D96A-4107-9838-2761141CDDFB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EE8CCD2E-5C32-4BB3-8DFC-100C2B077EF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EE8CCD2E-5C32-4BB3-8DFC-100C2B077EF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE8CCD2E-5C32-4BB3-8DFC-100C2B077EF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EE8CCD2E-5C32-4BB3-8DFC-100C2B077EF5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0D8A9E46-E71A-4804-953C-71708AA0AF0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0D8A9E46-E71A-4804-953C-71708AA0AF0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0D8A9E46-E71A-4804-953C-71708AA0AF0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0D8A9E46-E71A-4804-953C-71708AA0AF0B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{62C1652E-F22F-4057-A0C6-429D8C90F0F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{62C1652E-F22F-4057-A0C6-429D8C90F0F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{62C1652E-F22F-4057-A0C6-429D8C90F0F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{62C1652E-F22F-4057-A0C6-429D8C90F0F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{75FDF695-D96A-4107-9838-2761141CDDFB} = {129505F8-9F84-4A73-A57B-09795B85D1CB}
-		{EE8CCD2E-5C32-4BB3-8DFC-100C2B077EF5} = {129505F8-9F84-4A73-A57B-09795B85D1CB}
 	EndGlobalSection
 EndGlobal
