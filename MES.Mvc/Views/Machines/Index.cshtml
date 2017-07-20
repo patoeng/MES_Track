@@ -36,12 +36,7 @@
                         <th>
                             @Html.DisplayNameFor(model => model.Name)
                         </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.MachineStatus)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.TraceabilityStatus)
-                        </th>
+                        
                         <th></th>
                     </tr>
 
@@ -60,12 +55,7 @@
                             <td>
                                 @Html.DisplayFor(modelItem => item.Name)
                             </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.MachineStatus)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.TraceabilityStatus)
-                            </td>
+                           
                            @if (ViewBag.IsAdmin == true)
                            {
                             <td>

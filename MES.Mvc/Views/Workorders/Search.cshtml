@@ -1,4 +1,5 @@
-﻿@model IEnumerable<MES.Mvc.Models.WorkOrderDetailsModels>
+﻿@using MES.Mvc.Models
+@model IEnumerable<MES.Mvc.Models.WorkOrderDetailsModels>
 
 @{
     ViewBag.Title = "Index";
@@ -145,39 +146,87 @@
                                         @Html.DisplayFor(modelItem => item.UseProductSequence)
                                     </td>
                                     <td>
+                                        
                                         @Html.DisplayFor(modelItem => item.Machine)
                                     </td>
                                     <td>
-                                       @Html.DisplayFor(modelItem => item.GeneratedQty)
+                                        
+                                        @Html.ActionLink(item.GeneratedQty.ToString(), "StatesDetails", new
+                                        {
+                                            workOrderId = item.WorkOrderId,
+                                            state  = (int) WorkOrderProductStates.Generated,
+                                            machine = item.MachineId
+                                        })
+                                       
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.ProcessQty)
+                                        @Html.ActionLink(item.ProcessQty.ToString(), "StatesDetails", new
+                                       {
+                                           workOrderId = item.WorkOrderId,
+                                           state = (int)WorkOrderProductStates.Processed,
+                                           machine = item.MachineId
+                                       })
                                     </td>
                                     @if (ViewBag.IsAdmin)
                                     {
-                                        <td>
-                                            @Html.DisplayFor(modelItem => item.PassQty)
+                                       <td>
+                                            @Html.ActionLink(item.PassQty.ToString(), "StatesDetails", new
+                                       {
+                                           workOrderId = item.WorkOrderId,
+                                           state = (int)WorkOrderProductStates.Pass,
+                                           machine = item.MachineId
+                                       })
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.FailQty)
+                                            @Html.ActionLink(item.FailQty.ToString(), "StatesDetails", new
+                                           {
+                                               workOrderId = item.WorkOrderId,
+                                               state = (int)WorkOrderProductStates.Fail,
+                                               machine = item.MachineId
+                                           })
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.DismantleQty)
+                                            @Html.ActionLink(item.DismantleQty.ToString(), "StatesDetails", new
+                                       {
+                                           workOrderId = item.WorkOrderId,
+                                           state = (int)WorkOrderProductStates.Dismantled,
+                                           machine = item.MachineId
+                                       })
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.PosDismantlePassQty)
+                                            @Html.ActionLink(item.PosDismantlePassQty.ToString(), "StatesDetails", new
+                                          {
+                                              workOrderId = item.WorkOrderId,
+                                              state = (int)WorkOrderProductStates.PassAfterDismantle,
+                                              machine = item.MachineId
+                                          })
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.PosDismantleFailQty)
+                                            @Html.ActionLink(item.PosDismantleFailQty.ToString(), "StatesDetails", new
+                                        {
+                                            workOrderId = item.WorkOrderId,
+                                            state = (int)WorkOrderProductStates.FailAfterDismantle,
+                                            machine = item.MachineId
+                                        })
                                         </td>
                                     }
                                     else
                                     {
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.PosDismantlePassQty)
+                                            @Html.ActionLink(item.PosDismantlePassQty.ToString(), "StatesDetails", new
+                                        {
+                                            workOrderId = item.WorkOrderId,
+                                            state = (int)WorkOrderProductStates.FinalPass,
+                                            machine = item.MachineId
+                                        })
                                         </td>
                                         <td>
-                                            @Html.DisplayFor(modelItem => item.PosDismantleFailQty)
+                                            @Html.ActionLink(item.PosDismantleFailQty.ToString(), "StatesDetails", new
+                                           {
+                                               workOrderId = item.WorkOrderId,
+                                               state = (int)WorkOrderProductStates.FinalFail,
+                                               machine = item.MachineId
+                                           })
                                         </td>
                                     }
 

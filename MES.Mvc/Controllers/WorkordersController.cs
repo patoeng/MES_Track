@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Linq;
@@ -26,7 +27,19 @@ namespace MES.Mvc.Controllers
             ViewBag.IsAdmin = UserControl.IsAdminUser(User);
             return View();
         }
-
+        public ActionResult StatesDetails(int workOrderId, int state, int machine)
+        {
+            object[] parameters = {
+                new SqlParameter {ParameterName = "@workOrderId",Value = workOrderId},
+                new SqlParameter {ParameterName = "@state",Value = state,SqlDbType = SqlDbType.Int},
+                new SqlParameter {ParameterName = "@machineId",Value = machine}
+            };
+            var db = new Data.ApplicationDbContext();
+            var data = db.Database.SqlQuery<WorkOrderProduct>(
+                "exec usp_web_WorkOrderProduct @workOrderId,@state,@machineId", parameters).ToList();
+            ViewBag.IsAdmin = UserControl.IsAdminUser(User);
+            return View(data);
+        }
         [HttpPost]
         [MultipleButton(Name = "action", Argument = "Search")]
         public ActionResult Search(string workOrder,string reference,  string fromDateTime,

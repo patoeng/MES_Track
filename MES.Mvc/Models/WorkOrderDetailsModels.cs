@@ -27,6 +27,7 @@ namespace MES.Mvc.Models
         [DisplayName("Product Sequence")]
         public string UseProductSequence { get; set; }
         public string Machine { get; set; }
+        public int MachineId { get; set; }
         [DisplayName("Qty Generated")]
         public int? GeneratedQty { get; set; }
         [DisplayName("Qty Processed")]
