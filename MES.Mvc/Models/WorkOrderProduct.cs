@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
 namespace MES.Mvc.Models
 {
@@ -6,6 +7,8 @@ namespace MES.Mvc.Models
     {
         [DisplayName("Product Data Metrix")]
         public string DataMetrix { get; set; }
+        [DisplayName("Date/Time")]
+        public DateTime DateTime { get; set; }
         [DisplayName("Work Order Number")]
         public string WorkOrderNumber { get; set; }
         [DisplayName("Product Status")]

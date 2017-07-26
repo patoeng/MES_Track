@@ -24,6 +24,9 @@
                             @Html.DisplayNameFor(model => model.WorkOrderNumber)
                         </th>
                         <th>
+                            @Html.DisplayNameFor(model => model.DateTime)
+                        </th>
+                        <th>
                             @Html.DisplayNameFor(model => model.Machine)
                         </th>
                         <th>
@@ -44,6 +47,10 @@
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.WorkOrderNumber)
+                                </td>
+                               
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.DateTime)
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.Machine)
